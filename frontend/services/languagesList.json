@@ -1,10 +1,8 @@
 {
   "en": {
-    "name":"English",
-    "nativeName":"English"
+    "name":"English"
   },
   "ar": {
-        "name":"Arabic",
-    "nativeName":"Arabic"
+      "name":"Arabic"
   }
 }
