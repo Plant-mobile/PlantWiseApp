@@ -1,3 +1,15 @@
 {
-  "welcome": "welcome Back"
+  "welcome": "welcome Back",
+  "email": "Enter your email",
+  "password": "Enter your password",
+  "password-again": "Enter your password again",
+  "login": "Login",
+  "login-form": "Login Form",
+  "login-here": "Regester here",
+  "regester": "Regester",
+  "regester-form": "Regester Form",
+  "regester-here": "Regester here",
+  "about-title": "Welcome to our Plants App! 🌿\n",
+  "about": "Explore different types of plants such as trees, flowering plants, fungi, and fertilizers.\nSelect any category to discover detailed information, or take a photo of your plant and let AI tell you about its condition and detect any diseases.\nDiscover, learn, and care for your plants in a smart and fun way!",
+  "next": "Next"
 }
