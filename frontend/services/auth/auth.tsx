@@ -35,7 +35,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   async function logout() {
     await AsyncStorage.removeItem('user')
-    // await AsyncStorage.removeItem('hasSeenIntro')
+    await AsyncStorage.removeItem('hasSeenIntro')
     setUser(null)
     console.log('🚪 logged out')
   }
