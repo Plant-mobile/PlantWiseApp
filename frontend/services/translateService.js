@@ -10,9 +10,24 @@ export const languagesResources = {
 
 i18next.use(initReactI18next).init({
   compatibilityJSON: 'v4',
-  lng: 'ar',
+  lng: 'en',
   fallbackLng: "en",
   resources: languagesResources,
 });
+
+
+export const translation = (text) => {
+
+    const [first, last] = text.split(".");
+    const lang = i18next.language; 
+    const data = languagesResources[lang].translation;
+
+    
+    if (last && data[first] && typeof data[first] === "object") {
+      return data[first][last] || text;
+    }
+
+    return data[text] || text;
+};
 
 export default i18next;
