@@ -1,24 +1,34 @@
 {
   "g": {
-    "welcome": "welcome Back",
-    "email": "Enter your email",
-    "password": "Enter your password",
-    "password-again": "Enter your password again",
-    "about-title": "Welcome to our Plants App! 🌿\n",
-    "about": "Explore different types of plants such as trees, flowering plants, fungi, and fertilizers.\nSelect any category to discover detailed information, or take a photo of your plant and let AI tell you about its condition and detect any diseases.\nDiscover, learn, and care for your plants in a smart and fun way!",
+    "welcome": "Welcome",
+    "email": "Email",
+    "user-Name": "Username",
+    "password": "Password",
+    "password-again": "Password again",
+    "title-one": "Welcome To Flora Sense",
+    "about-one": "Caring for your plants has never been easier 🌱",
+    "title-two": "Are you ready to learn more about our app?",
+    "about-two": "Upload a photo of your plant, and our AI will tell you:\n1) if it’s healthy,\n2) what disease it might have,\n3) its name, and\n4) how to care for it.",
+    "title-three": "You can also:",
+    "about-three": "1) Explore different types of plants and learn about them.\n\n2) Discover fertilizers and pesticides with helpful tips.\n\n3) You can donate money, plants, or your time to help make Jordan green.",
     "next": "Next",
+    "start": "Get Started",
+    "continue": "Or Continue With",
     "":""
   },
   "login": {
-    "login": "Login",
-    "login-form": "Login Form",
-    "register-here": "Register here",
+    "login": "login",
+    "login-form": "login to your account",
+    "register-here": "Register for free",
+    "forget-password": "Forget Password?",
+    "no-account": " Don’t have an account yet?",
     "": ""
   },
   "register": {
     "register": "Register",
-    "register-form": "Register Form",
-    "login-here": "Login here",
+    "register-form": "Create your new account",
+    "login-here": "Sing up",
+    "have-account": "Already have an account?",
     "":""
   }
 }

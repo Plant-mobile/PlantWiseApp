@@ -1,14 +1,195 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useContext, useState } from 'react';
+import { View, TextInput, Text, StyleSheet, Image, useColorScheme, Dimensions } from 'react-native';
+import { useNavigation, useRouter } from 'expo-router';
+import { UserContext } from '../../services/auth/auth';
+import {useTranslation} from 'react-i18next'
+import { translation } from '../../services/translateService';
+import Spacer from '../../components/Spacer';
+import ThemedText from '../../components/ThemedText';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '../../constants/Colors';
 
-const regester = () => {
+export default function LoginScreen() {
+  const ColorScheme = useColorScheme()
+  const theme = Colors[ColorScheme] ?? Colors.light
+  const router = useRouter();
+  const userCtx = useContext(UserContext)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordAgain, setPasswordAgain] = useState('');
+  const [userName, setUserName] = useState('');
+  const {i18n} = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  const [isUserNameFocused, setIsUserNameFocused] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isPasswordAgainFocused, setIsPasswordAgainFocused] = useState(false);
+
+  const handleLogin = async () => {
+      router.replace('/login'); 
+  };
+
+  const handleRegester = async () => {
+
+    if (userCtx && email && password && passwordAgain && userName) {
+      userCtx.register(email, password, userName)
+
+      router.replace('/(dashboard)/main'); 
+    }
+  };
+
+
+if(userCtx.user == null){
   return (
-    <View>
-      <Text>regester</Text>
+        <View style={[styles.container,{backgroundColor: theme.secondaryBackgroundColor}]}>
+          <Spacer height={50} />
+          <View style = {styles.boxShadow}>
+            <Text style = {[{fontFamily: Colors.primaryFontBold, fontSize: 80, textAlign: 'center', color: Colors.primaryColor,}]}>{translation('register.register')}</Text>
+          </View>
+          <Spacer height={20} />
+          <Text style={[styles.title, {color: Colors.primaryColor}, styles.boxShadow]}>{translation('register.register-form')}</Text>
+          <View style ={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.boxShadow, {backgroundColor: theme.inputBackgroundColor}]}
+              placeholder={isUserNameFocused ? '' : translation('g.user-Name')}
+              placeholderTextColor={Colors.primaryColor}
+              value={userName}
+              onChangeText={setUserName}
+              keyboardType='email-address'
+              onFocus={() => setIsUserNameFocused(true)} 
+              onBlur={() => setIsUserNameFocused(false)}
+              textAlign={isRTL ? 'right' : 'left'}
+            />
+            <Image source = {require('../../assets/userName.png')}  style={[styles.icon, {height: 18, width: 14}]} />
+          </View>
+          <View style ={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.boxShadow, {backgroundColor: theme.inputBackgroundColor}]}
+              placeholder={isEmailFocused ? '' : translation('g.email')}
+              placeholderTextColor={Colors.primaryColor}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType='email-address'
+              onFocus={() => setIsEmailFocused(true)} 
+              onBlur={() => setIsEmailFocused(false)}
+              textAlign={isRTL ? 'right' : 'left'}
+            />
+            <Image source = {require('../../assets/loginCamera.png')}  style={[styles.icon, {height: 17}]} />
+          </View>
+          <View style ={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.boxShadow, {backgroundColor: theme.inputBackgroundColor}]}
+              placeholder={isPasswordFocused ? '' : translation('g.password')}
+              placeholderTextColor={Colors.primaryColor}
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              onFocus={() => setIsPasswordFocused(true)} 
+              onBlur={() => setIsPasswordFocused(false)}
+              textAlign={isRTL ? 'right' : 'left'} 
+            />
+        <Image source = {require('../../assets/lockLogin.png')}  style={[styles.icon, {height: 18}]} />
+        </View>
+        <View style ={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.boxShadow, {backgroundColor: theme.inputBackgroundColor}]}
+              placeholder={isPasswordAgainFocused ? '' : translation('g.password-again')}
+              placeholderTextColor={Colors.primaryColor}
+              secureTextEntry
+              value={passwordAgain}
+              onChangeText={setPasswordAgain}
+              onFocus={() => setIsPasswordAgainFocused(true)} 
+              onBlur={() => setIsPasswordAgainFocused(false)} 
+              textAlign={isRTL ? 'right' : 'left'}
+          />
+            <Image source = {require('../../assets/lockLogin.png')}  style={[styles.icon, {height: 18}]} />
+          </View>
+              <LinearGradient
+                colors={[theme.inputBackgroundColor, theme.primaryBackgroundColor]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.button, styles.boxShadow]}
+                >
+                <Text onPress={handleRegester} style={styles.btn}>{translation('register.register')}</Text> 
+              </LinearGradient>
+        <Spacer height={130} />
+        <View style ={{ position: 'relative'}}>
+          <Image source = {require('../../assets/Line_3.png')} style={{margin:-20, width:140}} />
+          <Text style ={{position: 'absolute', left: 135, width: Dimensions.get('window').width, bottom: 10, color: Colors.primaryColor, fontWeight: 'bold'}}>
+              {translation('g.continue')}
+          </Text>
+          <Image source = {require('../../assets/Line_3.png')} style={{ position: 'absolute' ,margin:-20, width:135, right:0}} />
+        </View>
+        <Spacer height={20} />
+        <View style ={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <Image source = {require('../../assets/Frame_9.png')} />
+        </View>
+        <Spacer height={40} />
+        <ThemedText style={{textAlign: 'center', color: Colors.primaryColor, fontWeight: 500}}>
+          {translation('register.have-account')}
+        <ThemedText onPress={handleLogin} style ={{fontWeight: 'bold'}}>{translation('register.login-here')}</ThemedText>
+      </ThemedText>
     </View>
-  )
+  );
+  }
 }
 
-export default regester
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: { 
+    flex: 1,  
+    padding: 20, 
+  },
+  input: {
+    marginVertical: 10, 
+    padding: 20, 
+    borderRadius:50, 
+    paddingRight:15, 
+    fontWeight: 800, 
+    paddingHorizontal: 50, 
+    height: 70, 
+    fontSize: 20,
+    color: Colors.primaryColor
+  },
+  title: { 
+    fontSize: 20, 
+    textAlign: 'center', 
+    marginBottom: 20, 
+    fontFamily: 'PlayfairDisplay' 
+  },
+   inputContainer: {
+    position: 'relative',
+    width: '100%',
+    justifyContent: 'center',
+  },
+  icon: {
+    position: 'absolute',
+    left: 20,
+    width: 19,
+
+  },
+  btn: {
+    color: 'white',
+    textAlign: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius:12,
+    fontWeight: 'bold'
+
+  },
+    button: {
+    position: "absolute",
+    bottom: 215,
+    left: 132,
+    marginTop: 30,
+    paddingVertical: 1,
+    paddingHorizontal: 30,
+    borderRadius:16,
+  },
+  boxShadow:{
+    shadowColor: '#000',
+    shadowOffset: { width: 1.25, height: 1 },
+    shadowOpacity: 0.25,
+    elevation: 4
+  }
+});
