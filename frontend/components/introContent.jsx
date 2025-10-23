@@ -1,78 +1,111 @@
-import { Image, Text, View, StyleSheet, useColorScheme} from 'react-native'
+import { Image, Text, View, StyleSheet, useColorScheme, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
 import Spacer from './Spacer';
 
+const { width, height } = Dimensions.get('window');
 
 const images = {
   flower: require('../assets/flower.png'),
   camera: require('../assets/camera.png'),
 };
 
-
-const IntroContent  = ({ title, secondTitle = null, about, img = null, hasImg = true, titleSize = null, textSize = null, lineHeight = null, isTextLeft = false}) => {
-  
-  const ColorScheme = useColorScheme()
-  const theme = Colors[ColorScheme] ?? Colors.light
+const IntroContent = ({
+  title,
+  secondTitle = null,
+  about,
+  img = null,
+  hasImg = true,
+  titleSize = 32,
+  textSize = 18,
+  lineHeight = 28,
+  isTextLeft = false,
+}) => {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme] ?? Colors.light;
 
   return (
-  <>
-    <View style={[styles.header, {backgroundColor: theme.primaryBackgroundColor}]}>
-      <Text style={[titleSize && {fontSize : titleSize}, styles.title]}>{title}</Text>
-    </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.primaryBackgroundColor}]}>
+      <View style={[styles.header]}>
+        <Text style={[styles.title, { fontSize: titleSize }]}>{title}</Text>
+      </View>
 
-    <View style={[styles.container, {backgroundColor: theme.secondaryBackgroundColor}]}>
-      { hasImg &&
-        <View style = {[styles.cricle, {backgroundColor: theme.cricleBackgroundColor, borderRadius: 125}]}>
-          <Image source={images[img]} style={styles.image} />
-        </View>
-      }
-      { secondTitle &&
-        <Text style = {{fontSize: 36, color: Colors.primaryColor, fontWeight: 'bold'}}>
-          {secondTitle}
+      <View style={[styles.container, { backgroundColor: theme.secondaryBackgroundColor }]}>
+        {hasImg && (
+          <View style={[styles.circle, { backgroundColor: theme.cricleBackgroundColor }]}>
+            <Image source={images[img]} style={styles.image} />
+          </View>
+        )}
+
+        {secondTitle && (
+          <Text style={styles.secondTitle}>{secondTitle}</Text>
+        )}
+
+        <Spacer height={20} />
+
+        <Text
+          style={[
+            styles.description,
+            {
+              color: Colors.primaryColor,
+              fontSize: textSize,
+              lineHeight: lineHeight,
+              textAlign: isTextLeft ? 'left' : 'center',
+            },
+          ]}
+        >
+          {about}
         </Text>
-      }
-      <Spacer height={30} />
-      <Text style={[styles.description, {color: Colors.primaryColor}, textSize && {fontSize: textSize}, lineHeight && {lineHeight: lineHeight}, isTextLeft && {textAlign: 'left'}]}>
-        {about}
-      </Text>
-    </View>
-  </>
-  )
-}
+      </View>
+    </SafeAreaView>
+  );
+};
 
-export default IntroContent; 
-
+export default IntroContent;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   header: {
+    height: height * 0.23,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 300,
-    position: "relative"
+    paddingHorizontal: 20,
   },
   container: {
-    flex: 1,
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 30,
+    paddingTop: 20,
     borderTopRightRadius: 50,
-    borderTopLeftRadius: 50
+    borderTopLeftRadius: 50,
+    height: height
   },
   title: {
-    color: 'white', 
+    color: 'white',
     textAlign: 'center',
-    fontFamily: 'PlayfairDisplay-Bold'
+    fontFamily: 'PlayfairDisplay-Bold',
+  },
+  secondTitle: {
+    fontSize: 28,
+    color: Colors.primaryColor,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 20,
   },
   description: {
-    textAlign: 'center',
     fontFamily: Colors.primaryFont,
-    fontWeight: 800
+    fontWeight: '800',
   },
   image: {
-    resizeMode: 'cover',
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
-  cricle: {
-    width: 200,
-    height: 200,
+  circle: {
+    width: width * 0.5,
+    height: width * 0.5,
+    borderRadius: (width * 0.5) / 2,
     justifyContent: 'center',
     alignItems: 'center',
   },

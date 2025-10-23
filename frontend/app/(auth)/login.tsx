@@ -1,177 +1,219 @@
 import React, { useContext, useState } from 'react';
-import { View, TextInput, Text, StyleSheet, useColorScheme, Image, Dimensions } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView, useColorScheme } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { UserContext } from '../../services/auth/auth';
-import {useTranslation} from 'react-i18next'
+import { useTranslation } from 'react-i18next';
 import { translation } from "../../services/translateService";
 import { Colors } from '../../constants/Colors';
-import Spacer from '../../components/Spacer';
-import { LinearGradient } from 'expo-linear-gradient';
-import ThemedText from '../../components/ThemedText';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
-  const ColorScheme = useColorScheme()
-  const theme = Colors[ColorScheme] ?? Colors.light
   const router = useRouter();
-  const userCtx = useContext(UserContext)
+  const userCtx = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {i18n} = useTranslation();
+  const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const ColorScheme = useColorScheme();
+   const theme = Colors[ColorScheme] ?? Colors.light;
+    const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-
   const handleLogin = async () => {
-
     if (userCtx && email && password) {
-      userCtx.login(email, password)
-
-      router.replace('/(dashboard)/main'); 
+      userCtx.login(email, password);
+      router.replace('/(dashboard)/main');
     }
   };
 
-  const handleRegester = async () => {
-      router.replace('/regester'); 
+  const handleRegister = async () => {
+    router.replace('/regester');
   };
 
+  if (userCtx.user == null) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.secondaryBackgroundColor }]}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.container}>
+            <Text style={styles.welcome}>{translation('g.welcome')}</Text>
+            <Text style={styles.subtitle}>{translation('login.login-form')}</Text>
 
-if(userCtx.user == null){
-  return (
-    <View style={[styles.container,{backgroundColor: theme.secondaryBackgroundColor}]}>
-
-          <Spacer height={50} />
-          <View style = {styles.boxShadow}>
-          <Text style = {[{fontFamily: Colors.primaryFontBold, fontSize: 80, textAlign: 'center', color: Colors.primaryColor,}]}>{translation('g.welcome')}</Text>
-          </View>
-          <Spacer height={20} />
-          <Text style={[styles.title, {color: Colors.primaryColor}, styles.boxShadow]}>{translation('login.login-form')}</Text>
-          <Spacer height={50} />
-          <View style ={styles.inputContainer}>
-            <TextInput
-              style={[styles.input, styles.boxShadow, {backgroundColor: theme.inputBackgroundColor}]}
-              placeholder={isEmailFocused ? '' : translation('g.email')}
-              placeholderTextColor={Colors.primaryColor}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType='email-address'
-              onFocus={() => setIsEmailFocused(true)} 
-              onBlur={() => setIsEmailFocused(false)}
-              textAlign={isRTL ? 'right' : 'left'}
-            />
-            <Image source = {require('../../assets/loginCamera.png')}  style={[styles.icon, {height: 17}]} />
-          </View>
-          <Spacer height={30} />
-          <View style ={styles.inputContainer}>
+            <View style={[styles.inputContainer, { marginTop: height * 0.02 }]}>
               <TextInput
-                style={[styles.input, styles.boxShadow, {backgroundColor: theme.inputBackgroundColor}]}
+                style={[styles.input, { backgroundColor: theme.inputBackgroundColor }]}
+                placeholder={isEmailFocused ? '' : translation('g.email')}
+                placeholderTextColor={Colors.primaryColor}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                onFocus={() => setIsEmailFocused(true)}
+                onBlur={() => setIsEmailFocused(false)}
+                textAlign={isRTL ? 'right' : 'left'}
+              />
+              <Image source={require('../../assets/loginCamera.png')} style={[styles.icon, { height: 17 }]} />
+            </View>
+  
+
+            <View style={[styles.inputContainer, { marginTop: height * 0.02 }]}>
+              <TextInput
+                style={[styles.input, { backgroundColor: theme.inputBackgroundColor }]}
                 placeholder={isPasswordFocused ? '' : translation('g.password')}
                 placeholderTextColor={Colors.primaryColor}
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
-                onFocus={() => setIsPasswordFocused(true)} 
+                onFocus={() => setIsPasswordFocused(true)}
                 onBlur={() => setIsPasswordFocused(false)}
-                textAlign={isRTL ? 'right' : 'left'} 
+                textAlign={isRTL ? 'right' : 'left'}
               />
-              <Image source = {require('../../assets/lockLogin.png')}  style={[styles.icon, {height: 18}]} />
+              <Image source={require('../../assets/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
+            </View>
+
+            <View style={{ width: '100%', alignItems: 'flex-end' }}>
+            <TouchableOpacity>
+              <Text style={styles.forgetPassword}>{translation('login.forget-password')}</Text>
+            </TouchableOpacity>
+            </View>
+
+            
+            <LinearGradient
+              colors={[theme.inputBackgroundColor, theme.primaryBackgroundColor]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.button}
+            >
+              <Text onPress={handleLogin} style={styles.btnText}>
+                {translation('login.login')}
+              </Text>
+            </LinearGradient>
+
+
+            <View style={styles.orContainer}>
+              <View style={styles.line} />
+              <Text style={styles.orText}>{translation('g.continue')}</Text>
+              <View style={styles.line} />
+            </View>
+
+            <View style={styles.socialContainer}>
+              <Image source={require('../../assets/Frame_9.png')} />
+            </View>
+
+
+            <Text style={styles.registerText}>
+              {translation('login.no-account')}{' '}
+              <Text onPress={handleRegister} style={styles.registerLink}>
+                {translation('login.register-here')}
+              </Text>
+            </Text>
           </View>
-          <Text style={[styles.forgetPassword, {color: Colors.primaryColor}]}>{translation('login.forget-password')}</Text>
-          <Spacer height={50} />
-              <LinearGradient
-                colors={[theme.inputBackgroundColor, theme.primaryBackgroundColor]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.button, styles.boxShadow]}
-                >
-                <Text onPress={handleLogin} style={styles.btn}>{translation('login.login')}</Text> 
-              </LinearGradient>
-        <Spacer height={130} />
-
-
-
-        <View style ={{ position: 'relative'}}>
-          <Image source = {require('../../assets/Line_3.png')} style={{margin:-20, width:140}} />
-          <Text style ={{position: 'absolute', left: 135, width: Dimensions.get('window').width, bottom: 10, color: Colors.primaryColor, fontWeight: 'bold'}}>
-              {translation('g.continue')}
-          </Text>
-          <Image source = {require('../../assets/Line_3.png')} style={{ position: 'absolute' ,margin:-20, width:135, right:0}} />
-        </View>
-        <Spacer height={20} />
-        <View style ={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          <Image source = {require('../../assets/Frame_9.png')} />
-        </View>
-        <Spacer height={80} />
-        <ThemedText style={{textAlign: 'center', color: Colors.primaryColor, fontWeight: 500}}>
-          {translation('login.no-account')}
-        <ThemedText onPress={handleRegester} style ={{fontWeight: 'bold'}}>{translation('login.register-here')}</ThemedText>
-      </ThemedText>
-    </View>
-  );
+        </ScrollView>
+      </SafeAreaView>
+    );
   }
 }
 
-
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1,  
-    padding: 20, 
+  safeArea: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: width * 0.08,
+    paddingVertical: height * 0.05,
+    minHeight: height - 60,
+  },
+  welcome: {
+    fontFamily: Colors.primaryFontBold,
+    fontSize: width * 0.16,
+    color: Colors.primaryColor,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: width * 0.045,
+    color: Colors.primaryColor,
+    textAlign: 'center',
+    marginBottom: height * 0.04,
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: height * 0.025,
   },
   input: {
-    marginVertical: 10, 
-    padding: 20, 
-    borderRadius:50, 
-    paddingRight:15, 
-    fontWeight: 800, 
-    paddingHorizontal: 50, 
-    height: 70, 
-    fontSize: 20,
-    color: Colors.primaryColor
-  },
-  title: { 
-    fontSize: 20, 
-    textAlign: 'center', 
-    marginBottom: 20, 
-    fontFamily: 'PlayfairDisplay' 
-  },
-   inputContainer: {
-    position: 'relative',
-    width: '100%',
-    justifyContent: 'center',
+    borderRadius: 50,
+    paddingVertical: height * 0.018,
+    paddingHorizontal: width * 0.12,
+    fontSize: width * 0.045,
+    color: Colors.primaryColor,
+    fontWeight: '600',
   },
   icon: {
     position: 'absolute',
     left: 20,
-    width: 19,
-
+    top: '30%',
+    width: width * 0.05,
+    height: width * 0.05,
+    tintColor: Colors.primaryColor,
   },
   forgetPassword: {
-    fontSize: 13,
-    textAlign: 'right',
-    fontWeight: 700
+    color: Colors.primaryColor,
+    fontWeight: '600',
+    marginBottom: height * 0.03,
   },
-  btn: {
-    color: 'white',
-    textAlign: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius:12,
-    fontWeight: 'bold'
-
-  },
-    button: {
-    position: "absolute",
-    bottom: 300,
-    left: 132,
-    marginTop: 30,
-    paddingVertical: 1,
-    paddingHorizontal: 30,
-    borderRadius:16,
-  },
-  boxShadow:{
+  button: {
+    width: '60%',
+    borderRadius: 16,
+    paddingVertical: height * 0.02,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 1.25, height: 1 },
+    shadowOffset: { width: 1, height: 2 },
     shadowOpacity: 0.25,
-    elevation: 4
-  }
+    elevation: 4,
+  },
+  btnText: {
+    width: '100%',
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: width * 0.045,
+  },
+  orContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: height * 0.03,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.primaryColor,
+  },
+  orText: {
+    marginHorizontal: 10,
+    color: Colors.primaryColor,
+    fontWeight: '600',
+  },
+  socialContainer: {
+    alignItems: 'center',
+  },
+  registerText: {
+    color: Colors.primaryColor,
+    textAlign: 'center',
+    marginTop: height * 0.02,
+  },
+  registerLink: {
+    fontWeight: 'bold',
+  },
+boxShadow: { 
+  shadowColor: '#000', 
+  shadowOffset: { width: 1.25, height: 1 }, 
+  shadowOpacity: 0.25, 
+  elevation: 4 }
 });

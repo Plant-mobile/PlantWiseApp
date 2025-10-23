@@ -3,6 +3,7 @@ export const Colors = {
   primaryFont: 'PlayfairDisplay',
   primaryFontBold: 'PlayfairDisplay-Bold',
   dotsBorderColor: '#0E3E3E',
+  tatalogOffBackgroundColor: '#B6E2BC',
 
   dark: {
     backgroundColor: '#252231',

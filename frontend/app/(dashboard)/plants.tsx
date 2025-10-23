@@ -1,0 +1,46 @@
+import { useRouter } from 'expo-router';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import ThemedView from '../../components/ThemedView';
+import Items from '../../components/Items';
+
+export default function ProductList() {
+  const router = useRouter();
+
+const data = [
+  { id: '1', title: 'Category A', subItems: [
+      { id: 'a1', title: 'Item A1' },
+      { id: 'a2', title: 'Item A2' },
+    ] },
+  { id: '2', title: 'Category B', subItems: [
+      { id: 'b1', title: 'Item B1' },
+      { id: 'b2', title: 'Item B2' },
+    ] },
+];
+
+
+  return (
+    <Items data={data} />
+    // <ThemedView style={{ padding: 20, height: "100%" }}>
+    //   <FlatList
+    //     data={products}
+    //     keyExtractor={(item) => item.id.toString()}
+    //     renderItem={({ item }) => (
+    //       <TouchableOpacity
+    //         onPress={() => router.push(`/details/${JSON.stringify(item)}`)} 
+    //         style={{
+    //           backgroundColor: '#f2f2f2',
+    //           padding: 15,
+    //           borderRadius: 8,
+    //           marginBottom: 10,
+    //         }}
+    //       >
+    //         <Text style={{ fontSize: 18 }}>{item.name}</Text>
+    //         <Text style={{ color: 'gray' }}>${item.price}</Text>
+    //       </TouchableOpacity>
+    //     )}
+    //   />
+    // </ThemedView>
+  );
+}
+
+
