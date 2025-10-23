@@ -14,6 +14,14 @@
     "next": "Next",
     "start": "Get Started",
     "continue": "Or Continue With",
+    "edit_my_profile": "Edit My Profile",
+    "user": "user",
+    "account_settings": "Account Settings",
+    "current_password": "Current password",
+    "new_password": "New password",
+    "confirm_new_password": " Confirm new password",
+    "dark_theme": "Turn Dark Theme",
+    "update_profile": "Update Profile",
     "":""
   },
   "login": {

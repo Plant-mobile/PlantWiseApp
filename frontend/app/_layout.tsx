@@ -5,6 +5,8 @@ import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context'
+// import BottomBar from '../components/BottomBar'
 
 
 
@@ -23,9 +25,9 @@ export default function RootLayout() {
   });
 
   return (
-    <UserProvider>
-      <Slot />
-      <Toast />
-    </UserProvider>
+      <UserProvider>
+        <Slot />
+        <Toast />
+      </UserProvider>
   )
 }
