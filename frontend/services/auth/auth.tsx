@@ -23,11 +23,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
 
-    const response = await fetch('http:localhost:5000/api/user/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ question: 'اشرح لي عن النباتات' }),
-});
+//     const response = await fetch('http:localhost:5000/api/user/auth/login', {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify({ question: 'اشرح لي عن النباتات' }),
+// });
     const fakeUser = { email }
     await AsyncStorage.setItem('user', JSON.stringify(fakeUser))
     setUser(fakeUser)

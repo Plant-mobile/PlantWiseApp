@@ -7,14 +7,22 @@ export default function ProductList() {
   const router = useRouter();
 
 const data = [
-  { id: '1', title: 'Category A', subItems: [
-      { id: 'a1', title: 'Item A1' },
-      { id: 'a2', title: 'Item A2' },
-    ] },
-  { id: '2', title: 'Category B', subItems: [
-      { id: 'b1', title: 'Item B1' },
-      { id: 'b2', title: 'Item B2' },
-    ] },
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    {id: 1, name: 'some name', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
+    // {id: 2, name: 'some name', catagory: 'Nitrogen Fertilizers', img: 'flower'}
 ];
 
 

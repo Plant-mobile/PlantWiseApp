@@ -22,6 +22,7 @@
     "confirm_new_password": " Confirm new password",
     "dark_theme": "Turn Dark Theme",
     "update_profile": "Update Profile",
+    "details": "Details",
     "":""
   },
   "login": {
@@ -35,8 +36,12 @@
   "register": {
     "register": "Register",
     "register-form": "Create your new account",
-    "login-here": "Sing up",
+    "login-here": "Sing in",
     "have-account": "Already have an account?",
+    "":""
+  },
+  "items": {
+    "nitrogen_fertilizers": "Nitrogen Fertilizers",
     "":""
   }
 }
