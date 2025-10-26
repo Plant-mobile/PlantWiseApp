@@ -16,12 +16,13 @@ import { ConfigService } from "@nestjs/config";
                 global:true,
                 secret:config.get<string>("JWT_SECRET"),
                 signOptions: {
-          // ✅ الحل النهائي:
+         
           expiresIn: config.get('JWT_EXPIRES_IN') as `${number}${'ms' | 's' | 'm' | 'h' | 'd'}`,
         },
             };
         }
     })
-]
+],
+ exports: [UsersService, JwtModule],
 })
 export class UsersModule{}

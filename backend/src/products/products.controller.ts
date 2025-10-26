@@ -1,5 +1,6 @@
 import { Controller,Get ,Post,Body} from "@nestjs/common";
 import { CreateProductDto } from "./dtos/create-product.dto";
+
 type ProductType={id:number,title:string}
 @Controller()
 export class ProductsController{
