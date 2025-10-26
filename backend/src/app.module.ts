@@ -17,7 +17,7 @@ import { FertilizersModule } from './Fertilizers/Fertilizers.module';
   return{ type:"postgres"
    ,username:"postgres.mjaaxtdkfozyvarrvter"
    ,database:"postgres"
-   ,password:config.get<string>("DB_PASSWORD")
+   ,password:"Admin@#123Plant"
    ,port:5432,
    host:"aws-1-ap-south-1.pooler.supabase.com"
    ,synchronize:process.env.NODE_ENV!=="production"
