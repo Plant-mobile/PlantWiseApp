@@ -7,6 +7,10 @@ import { UpdateUserDto } from "./dtos/update-user.dto";
 import{AuthGuard} from "./guards/auth.guard"
 import { CurrentUser } from "./decorators/current-user.decorator";
 import type { JWTPayloadType } from "src/utils/types";
+import { Roles } from "./decorators/user-role.decorator";
+import { AuthRolesGuard} from "./guards/auth-roles.guard";
+import { ForgotPasswordDto } from "./dtos/forgot-password.dto";
+import {ResetPasswordDto} from "./dtos/reset-password.dto"
 @Controller("api/users")
 export class UsersController{
     constructor(
@@ -21,7 +25,8 @@ export class UsersController{
    @Post("auth/login")
    @HttpCode(HttpStatus.OK)
    public login(@Body() body: LoginDto){
-    return this.usersService.login(body)
+   
+     return this.usersService.login(body)
    }
    // http://localhost:5000/api/users/current-user
    @Get("current-user")
@@ -37,5 +42,24 @@ export class UsersController{
    public updateUser(@CurrentUser() payload:JWTPayloadType,@Body() body:UpdateUserDto ){
     return this.usersService.update(payload.id, body);
    }
+   @Get()
+   @Roles(true)
+   @UseGuards(AuthRolesGuard)
+   public getAllUsers(){
+    return this.usersService.getAll();
+   }
+
+   
+  @Post('forgot-password')
+async forgotPassword(@Body() dto: ForgotPasswordDto) {
+  await this.usersService.forgotPassword(dto.email);
+  return { message: 'Reset password link has been sent to your email' };
+}
+
+@Post('reset-password')
+async resetPassword(@Body() dto: ResetPasswordDto) {
+  await this.usersService.resetPasswordByToken(dto.token, dto.newPassword);
+  return { message: 'Password updated successfully' };
+}
 
 }

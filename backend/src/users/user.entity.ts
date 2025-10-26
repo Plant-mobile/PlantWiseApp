@@ -2,17 +2,28 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 import{CURRENT_TIMESTAMP} from '../utils/constants';
 import { Product } from "src/products/products.entity";
 import { Review } from "src/reviews/review.entity";
+import {Fertilizer} from "../Fertilizers/Fertilizers.entity"
+// src/users/user.entity.ts
 
 @Entity({name:'users'})
 export class User{
     @PrimaryGeneratedColumn()
     id:number;
-    @Column({type:"varchar",length:"150",nullable:true})
+    @Column({type:"varchar",length:"150",nullable:false})
     username:string;
     @Column({type:"varchar",length:"250",unique:true})
    email:string;
     @Column()
     password:string;
+    @Column({ type: "boolean", default: false })
+    isAdmin: boolean;
+ @Column({ type: 'varchar', nullable: true })
+recovery_token: string | null;
+
+@Column({ type: 'timestamp', nullable: true })
+recovery_sent_at: Date | null;
+
+   
    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 createdAt: Date;
 
@@ -22,6 +33,9 @@ updatedAt: Date;
     @OneToMany(() =>Product,(Product) =>Product.user)
     products:Product[];
     @OneToMany(() =>Review,(review) =>review.user)
-    reviews:Review[];}
+    reviews:Review[];
+   @OneToMany(() => Fertilizer, (fertilizer) => fertilizer.user)
+Fertilizers: Fertilizer[];
+   }
     
    
