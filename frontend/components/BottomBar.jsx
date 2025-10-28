@@ -47,7 +47,7 @@ const BottomBar = () => {
       <Pressable onPress={handleHomePress} style={styles.iconContainer}>
         {pathname === '/main' && <View style={styles.activeCircle} />}
         <Animated.Image
-          source={require('../assets/homeIcon.png')}
+          source={require('../assets/home/homeIcon.png')}
           style={[
             styles.icon,
             { width: 36, height: 34, transform: [{ translateY: homeLift }] },
@@ -58,7 +58,7 @@ const BottomBar = () => {
       <Pressable onPress={handleScanPress} style={styles.iconContainer}>
         {pathname === '/scan' && <View style={styles.activeCircle} />}
         <Animated.Image
-          source={require('../assets/scanIcon.png')}
+          source={require('../assets/home/scanIcon.png')}
           style={[
             styles.icon,
             { width: 31, height: 31, transform: [{ translateY: scanLift }] },
@@ -69,7 +69,7 @@ const BottomBar = () => {
       <Pressable onPress={handlePlantsPress} style={styles.iconContainer}>
         {pathname === '/plants' && <View style={styles.activeCircle} />}
         <Animated.Image
-          source={require('../assets/saveIcon.png')}
+          source={require('../assets/home/saveIcon.png')}
           style={[
             styles.icon,
             { width: 28, height: 33, transform: [{ translateY: saveLift }] },
@@ -80,7 +80,7 @@ const BottomBar = () => {
       <Pressable onPress={handleProfilePress} style={styles.iconContainer}>
         {pathname === '/profile' && <View style={styles.activeCircle} />}
         <Animated.Image
-          source={require('../assets/profileIcon.png')}
+          source={require('../assets/home/profileIcon.png')}
           style={[
             styles.icon,
             { width: 28, height: 33, transform: [{ translateY: profileLift }] },

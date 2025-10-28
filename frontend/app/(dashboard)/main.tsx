@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router'
 import Spacer from '../../components/Spacer'
 import { Colors } from '../../constants/Colors'
 import ThemedView from '../../components/ThemedView'
+import { translation } from '../../services/translateService'
 const { width, height } = Dimensions.get('window');
 
 const Main = () => {
@@ -29,10 +30,14 @@ const Main = () => {
   const screenHeight = Dimensions.get('window').height - 60
 
   const tips = [
-    'Water your plants regularly 🌱',
-    'Give them enough sunlight ☀️',
-    'Avoid overwatering 💧',
-    'Use natural fertilizers 🌾',
+    translation("g.tip_one"),
+    translation("g.tip_two"),
+    translation("g.tip_three"),
+    translation("g.tip_four"),
+    translation("g.tip_five"),
+    translation("g.tip_six"),
+    translation("g.tip_seven"),
+    translation("g.tip_eight"),
   ]
 
   const [index, setIndex] = useState(0)
@@ -61,10 +66,6 @@ const Main = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const handleLogout = async () => {
-    userCtx.logout()
-    router.replace('/login')
-  }
 
   const goToPlants = () => {
     router.replace('/(dashboard)/plants')
@@ -91,11 +92,11 @@ const Main = () => {
         {/* صورة وزخرفة */}
         <View style={{ alignItems: 'center'}}>
           <Image
-            source={require('../../assets/homePlant.jpg')}
+            source={require('../../assets/home/homePlant.jpg')}
             style={{ borderRadius: 28, height: 140, width: width - 50 }}
           />
           <Image
-            source={require('../../assets/homeShadow.png')}
+            source={require('../../assets/home/homeShadow.png')}
             style={{ position: 'absolute', height: 140, borderRadius: 28, width: width - 50 }}
           />
           <View style={styles.overlay}>
@@ -116,16 +117,16 @@ const Main = () => {
 
         {/* المحتوى */}
         <View style={styles.contentContainer}>
-          <Pressable onPress={handleLogout}>
+          <Pressable>
             <Image
-              source={require('../../assets/homeAI.png')}
+              source={require('../../assets/home/homeAI.png')}
               style={{ width: 175, height: 175 }}
             />
           </Pressable>
 
           <Pressable onPress={goToFertilizers}>
             <Image
-              source={require('../../assets/homeFertilizers.png')}
+              source={require('../../assets/home/homeFertilizers.png')}
               style={{ width: 175, height: 175 }}
             />
           </Pressable>
@@ -134,14 +135,14 @@ const Main = () => {
 
           <Pressable onPress={goToPlants}>
             <Image
-              source={require('../../assets/homeGuide.png')}
+              source={require('../../assets/home/homeGuide.png')}
               style={{ width: 175, height: 175 }}
             />
           </Pressable>
 
           <Pressable onPress={goToPlants}>
             <Image
-              source={require('../../assets/homeHelp.png')}
+              source={require('../../assets/home/homeHelp.png')}
               style={{ width: 175, height: 175 }}
             />
           </Pressable>
@@ -172,18 +173,20 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: 'absolute',
-    bottom: 55,
-    width: '90%',
+    bottom: 46,
+    width: '80%',
     alignItems: 'center',
     overflow: 'hidden',
   },
   tipText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.04,
     fontWeight: '600',
     textShadowColor: 'rgba(0,0,0,0.4)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 4,
+    fontFamily: Colors.primaryFontBold,
+    textAlign: 'center'
   },
     scrollContainer: {
     flexGrow: 1,

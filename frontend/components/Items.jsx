@@ -18,6 +18,7 @@ import {
 } from "react-native-safe-area-context";
 import { Colors } from "../constants/Colors";
 import { translation } from "../services/translateService";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,10 +28,17 @@ const { width, height } = Dimensions.get("window");
 // };
 
 const images = {
-  nitrogen: require("../assets/nitrogen.png"),
+  nitrogen: require("../assets/items/nitrogenFertilize.png"),
+  phoshate: require("../assets/items/phoshateFertilizers.png"),
+  potassium: require("../assets/items/potassiumFertilize.png"),
+  micrinurent: require("../assets/items/micrinurentFertilize.png"),
+  mushroom: require("../assets/items/mushroom.png"),
+  shrubs: require("../assets/items/shrubs.png"),
+  trees: require("../assets/items/trees.png"),
+  herbs: require("../assets/items/herbs.png"),
 };
 
-const Items = ({ data }) => {
+const Items = ({ data, catagory, type, title }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const { i18n } = useTranslation();
@@ -48,56 +56,432 @@ const Items = ({ data }) => {
       setSelectedCategory(null);
     } else {
       router.replace("/main");
+      setSelectedCategory(null);
     }
   };
+  // const handelDetails = () => {
+  //   if (selectedItem) {
+  //     // كنت داخل عنصر فرعي → ارجع لقائمة العناصر الفرعية
+  //     setSelectedItem(null);
+  //   } else {
+  //     // كنت داخل كاتيجوري → ارجع لقائمة الكاتيجوريز
+  //     setSelectedCategory(null);
+  //   }
+  // };
 
   // لو محدد كاتيجوري → اعرض عناصرها
   if (selectedCategory) {
-    const subItems =
-      data.find((d) => d.id === selectedCategory)?.subItems || [];
-
     if (selectedItem) {
+      const subItem = data.find((item) => item.name === selectedItem);
       // صفحة التفاصيل للعنصر الداخلي
       return (
-        <View style={styles.container}>
+        <SafeAreaView
+          style={[
+            styles.container,
+            {
+              backgroundColor: theme.secondaryBackgroundColor,
+              paddingTop: insets.top,
+            },
+          ]}
+        >
           <TouchableOpacity
             onPress={handleBack}
-            style={{ flexDirection: isRTL ? "row-reverse" : "row" }}
+            style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignSelf: "flex-start",
+            }}
           >
             <Text style={[styles.back]}>
               <Image
-                source={require("../assets/arrow_en.png")}
+                source={require("../assets/items/arrow_en.png")}
                 style={styles.image}
               />
-              Back
+              {selectedItem}
             </Text>
           </TouchableOpacity>
-          <Text style={styles.title}>تفاصيل: {selectedItem}</Text>
-        </View>
+          <View
+            style={[
+              styles.line,
+              { backgroundColor: theme.lineBackgroundColor },
+            ]}
+          ></View>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 100 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            style={{
+              flex: 1,
+              backgroundColor: theme.secondaryBackgroundColor,
+              paddingTop: height * 0.03,
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                gap: width * 0.1,
+                flexDirection: "row",
+                paddingLeft: width * 0.05,
+                paddingRight: width * 0.03,
+                paddingBottom: height * 0.02,
+              }}
+            >
+              <View style={styles.detailsNameContainer}>
+                <Text style={[styles.detailsName, { fontSize: width * 0.06 }]}>
+                  {subItem.name}
+                </Text>
+                <Text style={[styles.detailsName, { fontSize: width * 0.1 }]}>
+                  {translation("items.fertilizers")}
+                </Text>
+                <View
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: width * 0.4,
+                    height: height * 0.05,
+                    marginTop: height * 0.03,
+                    backgroundColor: theme.inputBackgroundColor,
+                    borderRadius: 20,
+                    left: 35,
+                    // paddingHorizontal: 10
+                  }}
+                >
+                  <Text style={styles.age}>
+                    {translation("items.age", { time: "1-2 months" })}
+                  </Text>
+                </View>
+              </View>
+              <Image
+                source={require("../assets/items/urea.png")}
+                style={styles.detailsImage}
+                resizeMode="cover"
+              />
+            </View>
+            <View
+              style={[
+                styles.line,
+                { backgroundColor: theme.lineBackgroundColor },
+              ]}
+            ></View>
+            <View
+              style={{
+                paddingLeft: width * 0.05,
+                paddingRight: width * 0.05,
+                paddingBottom: insets.bottom + 30,
+              }}
+            >
+              <Text style={[styles.overViewName, { fontSize: width * 0.08 }]}>
+                {subItem.name} {translation("items.overview")}:
+              </Text>
+
+              <View style={{ marginBottom: height * 0.01 }}>
+                <Text style={styles.detailsLabel}>
+                  {type === "fertilizer"
+                    ? translation("items.chemical_formula")
+                    : translation("items.climate")}
+                </Text>
+                <LinearGradient
+                  colors={[
+                    theme.inputBackgroundColor,
+                    theme.primaryBackgroundColor,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.detailsFeild}
+                >
+                  <Text
+                    style={[
+                      styles.detailsButtonText,
+                      { color: theme.textColor },
+                    ]}
+                  >
+                    {type === "fertilizer"
+                      ? subItem.chemical_formula
+                      : subItem.climate}
+                  </Text>
+                </LinearGradient>
+              </View>
+              <View style={{ marginBottom: height * 0.01 }}>
+                <Text style={styles.detailsLabel}>
+                  {type === "fertilizer"
+                    ? translation("items.common_form")
+                    : translation("items.substrate")}
+                </Text>
+                <LinearGradient
+                  colors={[
+                    theme.inputBackgroundColor,
+                    theme.primaryBackgroundColor,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.detailsFeild}
+                >
+                  <Text
+                    style={[
+                      styles.detailsButtonText,
+                      { color: theme.textColor },
+                    ]}
+                  >
+                    {type === "fertilizer"
+                      ? subItem.common_form
+                      : subItem.substrate}
+                  </Text>
+                </LinearGradient>
+              </View>
+              <View style={{ marginBottom: height * 0.01 }}>
+                <Text style={styles.detailsLabel}>
+                  {type === "fertilizer"
+                    ? translation("items.approximate_proportions")
+                    : translation("items.temperatures")}
+                </Text>
+                <LinearGradient
+                  colors={[
+                    theme.inputBackgroundColor,
+                    theme.primaryBackgroundColor,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.detailsFeild}
+                >
+                  <Text
+                    style={[
+                      styles.detailsButtonText,
+                      { color: theme.textColor },
+                    ]}
+                  >
+                    {type === "fertilizer"
+                      ? subItem.approximate_proportions
+                      : subItem.temperatures}
+                  </Text>
+                </LinearGradient>
+              </View>
+              <View style={{ marginBottom: height * 0.01 }}>
+                {type === "fertilizer" && (
+                  <>
+                    <Text style={styles.detailsLabel}>
+                      {translation("items.symptoms")}
+                    </Text>
+
+                    <LinearGradient
+                      colors={[
+                        theme.inputBackgroundColor,
+                        theme.primaryBackgroundColor,
+                      ]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.detailsFeild}
+                    >
+                      <Text
+                        style={[
+                          styles.detailsButtonText,
+                          { color: theme.textColor },
+                        ]}
+                      >
+                        {subItem.solubility}
+                      </Text>
+                    </LinearGradient>
+                  </>
+                )}
+              </View>
+              <View style={{ marginBottom: height * 0.01 }}>
+                {type === "fertilizer" && subItem.solubility ? (
+                  <>
+                    <Text style={styles.detailsLabel}>
+                      {translation("items.solubility")}
+                    </Text>
+
+                    <LinearGradient
+                      colors={[
+                        theme.inputBackgroundColor,
+                        theme.primaryBackgroundColor,
+                      ]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.detailsFeild}
+                    >
+                      <Text
+                        style={[
+                          styles.detailsButtonText,
+                          { color: theme.textColor },
+                        ]}
+                      >
+                        {subItem.solubility}
+                      </Text>
+                    </LinearGradient>
+                  </>
+                ) : type !== "fertilizer" ? (
+                  <>
+                    <Text style={styles.detailsLabel}>
+                      {translation("items.production_time")}
+                    </Text>
+
+                    <LinearGradient
+                      colors={[
+                        theme.inputBackgroundColor,
+                        theme.primaryBackgroundColor,
+                      ]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.detailsFeild}
+                    >
+                      <Text
+                        style={[
+                          styles.detailsButtonText,
+                          { color: theme.textColor },
+                        ]}
+                      >
+                        {subItem.production_time}
+                      </Text>
+                    </LinearGradient>
+                  </>
+                ) : null}
+              </View>
+              <View style={{ marginBottom: height * 0.01 }}>
+                <Text style={styles.detailsLabel}>
+                  {type === "fertilizer"
+                    ? translation("items.indications")
+                    : translation("items.humidity")}
+                </Text>
+                <LinearGradient
+                  colors={[
+                    theme.inputBackgroundColor,
+                    theme.primaryBackgroundColor,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.detailsFeild}
+                >
+                  <Text
+                    style={[
+                      styles.detailsButtonText,
+                      { color: theme.textColor },
+                    ]}
+                  >
+                    {type === "fertilizer"
+                      ? subItem.Indications
+                      : subItem.humidity}
+                  </Text>
+                </LinearGradient>
+              </View>
+              <View style={{ marginBottom: height * 0.01 }}>
+                <Text style={styles.detailsLabel}>
+                  {type === "fertilizer"
+                    ? translation("items.application")
+                    : translation("items.profit")}
+                </Text>
+                <LinearGradient
+                  colors={[
+                    theme.inputBackgroundColor,
+                    theme.primaryBackgroundColor,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.detailsFeild}
+                >
+                  <Text
+                    style={[
+                      styles.detailsButtonText,
+                      { color: theme.textColor },
+                    ]}
+                  >
+                    {type === "fertilizer"
+                      ? subItem.application
+                      : subItem.profit}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
       );
     }
 
-    // صفحة العناصر الداخلية
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>العناصر في {selectedCategory}</Text>
-        <FlatList
-          data={subItems}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.item}
-              onPress={() => setSelectedItem(item.title)}
-            >
-              <Text>{item.title}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme.secondaryBackgroundColor,
+            paddingTop: insets.top,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={handleBack}
+          style={{
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignSelf: "flex-start",
+          }}
+        >
+          <Text style={[styles.back]}>
+            <Image
+              source={require("../assets/items/arrow_en.png")}
+              style={styles.image}
+            />
+            {type === "fertilizer"
+              ? translation("items.fertilizers")
+              : translation("items.plants")}
+          </Text>
+        </TouchableOpacity>
+        <View
+          style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
+        ></View>
+        <Text style={[styles.header]}>{selectedCategory}</Text>
+
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          style={{
+            flex: 1,
+            backgroundColor: theme.secondaryBackgroundColor,
+            paddingLeft: width * 0.01,
+            paddingRight: width * 0.01,
+          }}
+        >
+          <View
+            style={[styles.imgContainer, { paddingBottom: insets.bottom + 20 }]}
+          >
+            {data
+              .filter((item) =>
+                selectedCategory
+                  ? translation(`items.${item.catagory}`) === selectedCategory
+                  : true
+              )
+              .map((item, index) => (
+                <View style={styles.dataContainer} key={index}>
+                  <Image source={images[item.img]} style={styles.mainImage} />
+                  <View style={styles.overlay}>
+                    <Image
+                      source={require("../assets/items/wave_1.png")}
+                      style={styles.wave1}
+                    />
+                    <Image
+                      source={require("../assets/items/wave_2.png")}
+                      style={styles.wave2}
+                    />
+                    <Text style={styles.title}>{item.name}</Text>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => setSelectedItem(item.name)}
+                    >
+                      <Text style={styles.detailsText}>
+                        {translation("g.details")}
+                      </Text>
+                      <Image
+                        source={require("../assets/items/arrow_en_white.png")}
+                        style={styles.arrowIcon}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
-
-  // الصفحة الرئيسية (العناصر الخارجية)
   return (
     <SafeAreaView
       style={[
@@ -108,34 +492,65 @@ const Items = ({ data }) => {
         },
       ]}
     >
-            <View style={styles.line}></View>
+      <TouchableOpacity
+        onPress={handleBack}
+        style={{
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignSelf: "flex-start",
+        }}
+      >
+        <Text style={[styles.back]}>
+          <Image
+            source={require("../assets/items/arrow_en.png")}
+            style={styles.image}
+          />
+          {translation("g.home")}
+        </Text>
+      </TouchableOpacity>
+      <View
+        style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
+      ></View>
+      <Text style={[styles.header]}>{title}</Text>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        style={{ flex: 1, backgroundColor: theme.secondaryBackgroundColor, paddingLeft: width * 0.05, paddingRight: width * 0.05}}
+        style={{
+          flex: 1,
+          backgroundColor: theme.secondaryBackgroundColor,
+          paddingLeft: width * 0.01,
+          paddingRight: width * 0.01,
+        }}
       >
-        <Text style={[styles.header]}>Fertilizers Type</Text>
         <View
           style={[styles.imgContainer, { paddingBottom: insets.bottom + 20 }]}
         >
-          {data.map((item, index) => (
-            <View style={styles.container1} key={index}>
+          {catagory.map((item, index) => (
+            <View style={styles.dataContainer} key={index}>
               <Image source={images[item.img]} style={styles.mainImage} />
               <View style={styles.overlay}>
                 <Image
-                  source={require("../assets/wave_1.png")}
+                  source={require("../assets/items/wave_1.png")}
                   style={styles.wave1}
                 />
                 <Image
-                  source={require("../assets/wave_2.png")}
+                  source={require("../assets/items/wave_2.png")}
                   style={styles.wave2}
                 />
-                <Text style={styles.title}>{translation('items.nitrogen_fertilizers')}</Text>
-                <TouchableOpacity style={styles.button}>
-                  <Text style={styles.detailsText}>{translation('g.details')}</Text>
+                <Text style={styles.title}>
+                  {translation(`items.${item.catagory}`)}
+                </Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() =>
+                    setSelectedCategory(translation(`items.${item.catagory}`))
+                  }
+                >
+                  <Text style={styles.detailsText}>
+                    {translation("g.details")}
+                  </Text>
                   <Image
-                    source={require("../assets/arrow_en_white.png")}
+                    source={require("../assets/items/arrow_en_white.png")}
                     style={styles.arrowIcon}
                     resizeMode="contain"
                   />
@@ -155,21 +570,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  back: { 
-    color: "blue", 
-    marginBottom: 10 
+  back: {
+    color: Colors.primaryColor,
+    fontFamily: Colors.primaryFontBold,
+    fontSize: 20,
+    marginBottom: 10,
   },
   header: {
     fontSize: 38,
+    textAlign: "center",
     fontFamily: Colors.primaryFontBold,
     color: Colors.primaryColor,
-    marginBottom: width * 0.1,
-    paddingLeft: width * 0.05,
+    marginBottom: width * 0.05,
   },
   line: {
     width: width,
     height: 3,
-    backgroundColor: "#DFF7E2",
+    // backgroundColor: "#DFF7E2",
   },
   imgContainer: {
     display: "flex",
@@ -178,13 +595,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: width * 0.05,
   },
-  container1: {
+  dataContainer: {
     position: "relative",
-    marginBottom: height * 0.07,
+    marginBottom: height * 0.1,
   },
   mainImage: {
-    width: width * 0.35, // 35% من عرض الشاشة
-    height: width * 0.35, // الحفاظ على نسبة العرض والطول متساوية
+    width: width * 0.4, // 35% من عرض الشاشة
+    height: width * 0.45, // الحفاظ على نسبة العرض والطول متساوية
     borderRadius: 10,
   },
   overlay: {
@@ -208,7 +625,7 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     top: 30,
-    fontSize: (width * 0.35) * .1 ,
+    fontSize: width * 0.35 * 0.1,
     width: "100%",
   },
   button: {
@@ -218,7 +635,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column",
-    right: (width * 0.35) * -0.1,
+    right: width * 0.35 * -0.1,
     width: "100%",
     textAlign: "right",
   },
@@ -233,5 +650,46 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 15,
     bottom: -4,
+  },
+  detailsNameContainer: {
+    maxWidth: width * 0.5,
+  },
+  detailsName: {
+    textAlign: "center",
+    color: Colors.primaryColor,
+    fontFamily: Colors.primaryFontBold,
+  },
+  detailsImage: {
+    width: width * 0.3,
+    height: width * 0.4,
+    borderRadius: 30,
+  },
+  overViewName: {
+    color: Colors.primaryColor,
+    fontFamily: Colors.primaryFontBold,
+    paddingBottom: height * 0.02,
+  },
+  detailsLabel: {
+    color: Colors.primaryColor,
+    fontSize: width * 0.04,
+    fontFamily: Colors.primaryFontBold,
+    marginBottom: height * 0.01,
+  },
+  detailsFeild: {
+    minHeight: height * 0.06,
+    borderRadius: 20,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: width * 0.04,
+  },
+  detailsButtonText: {
+    fontSize: width * 0.07,
+    fontFamily: Colors.primaryFont,
+  },
+  age: {
+    fontFamily: Colors.primaryFontBold,
+    color: Colors.primaryColor,
+    // alignItems: 'center'
   },
 });

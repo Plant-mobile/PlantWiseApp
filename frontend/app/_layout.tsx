@@ -1,12 +1,10 @@
+import '../services/translateService'
 import { Slot } from 'expo-router'
 import { UserProvider } from '../services/auth/auth'
-import '../services/translateService'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context'
-// import BottomBar from '../components/BottomBar'
 
 
 

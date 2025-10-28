@@ -24,9 +24,11 @@ export class UsersController{
    // http://localhost:5000/api/users/auth/login
    @Post("auth/login")
    @HttpCode(HttpStatus.OK)
-   public login(@Body() body: LoginDto){
+   public login(){
+    console.log("called");
+    return 'hi'
    
-     return this.usersService.login(body)
+    //  return this.usersService.login(body)
    }
    // http://localhost:5000/api/users/current-user
    @Get("current-user")
@@ -50,16 +52,16 @@ export class UsersController{
    }
 
    
-  @Post('forgot-password')
-async forgotPassword(@Body() dto: ForgotPasswordDto) {
-  await this.usersService.forgotPassword(dto.email);
-  return { message: 'Reset password link has been sent to your email' };
-}
+//   @Post('forgot-password')
+// async forgotPassword(@Body() dto: ForgotPasswordDto) {
+//   await this.usersService.forgotPassword(dto.email);
+//   return { message: 'Reset password link has been sent to your email' };
+// }
 
-@Post('reset-password')
-async resetPassword(@Body() dto: ResetPasswordDto) {
-  await this.usersService.resetPasswordByToken(dto.token, dto.newPassword);
-  return { message: 'Password updated successfully' };
-}
+// @Post('reset-password')
+// async resetPassword(@Body() dto: ResetPasswordDto) {
+//   await this.usersService.resetPasswordByToken(dto.token, dto.newPassword);
+//   return { message: 'Password updated successfully' };
+// }
 
 }

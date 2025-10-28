@@ -53,7 +53,7 @@ export default function LoginScreen() {
                 onBlur={() => setIsEmailFocused(false)}
                 textAlign={isRTL ? 'right' : 'left'}
               />
-              <Image source={require('../../assets/loginCamera.png')} style={[styles.icon, { height: 17 }]} />
+              <Image source={require('../../assets/auth/loginCamera.png')} style={[styles.icon, { height: 17 }]} />
             </View>
   
 
@@ -69,7 +69,7 @@ export default function LoginScreen() {
                 onBlur={() => setIsPasswordFocused(false)}
                 textAlign={isRTL ? 'right' : 'left'}
               />
-              <Image source={require('../../assets/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
+              <Image source={require('../../assets/auth/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
             </View>
 
             <View style={{ width: '100%', alignItems: 'flex-end' }}>
@@ -98,7 +98,7 @@ export default function LoginScreen() {
             </View>
 
             <View style={styles.socialContainer}>
-              <Image source={require('../../assets/Frame_9.png')} />
+              <Image source={require('../../assets/auth/Frame_9.png')} />
             </View>
 
 

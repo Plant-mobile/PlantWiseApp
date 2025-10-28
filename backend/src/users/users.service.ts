@@ -9,7 +9,7 @@ import { JWTPayloadType, AccessTokenType } from "../utils/types";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import * as nodemailer from 'nodemailer';
+// import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class UsersService {
@@ -110,41 +110,41 @@ export class UsersService {
   }
 
 
-  public async forgotPassword(email: string): Promise<void> {
-    const user = await this.usersRepository.findOne({ where: { email } });
-    if (!user) throw new BadRequestException('Email not found');
+  // public async forgotPassword(email: string): Promise<void> {
+  //   const user = await this.usersRepository.findOne({ where: { email } });
+  //   if (!user) throw new BadRequestException('Email not found');
 
-    // const resetToken = randomBytes(32).toString('hex');
-    // user.recovery_token = resetToken;
-    // user.recovery_sent_at = new Date();
-    // await this.usersRepository.save(user);
-    const randomNumber = Math.floor(1000 + Math.random() * 9000);
+  //   // const resetToken = randomBytes(32).toString('hex');
+  //   // user.recovery_token = resetToken;
+  //   // user.recovery_sent_at = new Date();
+  //   // await this.usersRepository.save(user);
+  //   const randomNumber = Math.floor(1000 + Math.random() * 9000);
   
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", 
-      port: 465,
-      secure: true,
-      auth: {
-        user: "anamstafa101@gmail.com",    
-        pass: "wgoc xatp rlxu lyqj",       
-      },
-    });
+  //   const transporter = nodemailer.createTransport({
+  //     host: "smtp.gmail.com", 
+  //     port: 465,
+  //     secure: true,
+  //     auth: {
+  //       user: "anamstafa101@gmail.com",    
+  //       pass: "wgoc xatp rlxu lyqj",       
+  //     },
+  //   });
 
-    // const resetLink = `https://yourapp.com/reset-password?token=${resetToken}`;
+  //   // const resetLink = `https://yourapp.com/reset-password?token=${resetToken}`;
 
-    await transporter.sendMail({
-      from: '"PlantWise" <no-reply@plantwise.com>',
-      to: user.email,
-      subject: "Reset Your Password",
-      html: `
-        <p>Hello ${user.username},</p>
-        <p>Click The code to reset your password is ${randomNumber}</p>
+  //   await transporter.sendMail({
+  //     from: '"PlantWise" <no-reply@plantwise.com>',
+  //     to: user.email,
+  //     subject: "Reset Your Password",
+  //     html: `
+  //       <p>Hello ${user.username},</p>
+  //       <p>Click The code to reset your password is ${randomNumber}</p>
         
-      `,
-    });
+  //     `,
+  //   });
     
-    console.log(`Reset password email sent to ${user.email}`);
-  }
+  //   console.log(`Reset password email sent to ${user.email}`);
+  // }
 
   
   public async resetPasswordByToken(token: string, newPassword: string): Promise<void> {

@@ -7,12 +7,15 @@ export const Colors = {
 
   dark: {
     backgroundColor: '#252231',
+    textColor: 'black' 
   }, 
   light: {
      primaryBackgroundColor: '#1CA739',
      secondaryBackgroundColor: '#F1FFF3',
      cricleBackgroundColor: '#DFF7E2',
-     inputBackgroundColor: '#8DD29B', 
+     lineBackgroundColor: '#DFF7E2',
+     inputBackgroundColor: '#8DD29B',
+     textColor: 'white' 
 
   },
 }

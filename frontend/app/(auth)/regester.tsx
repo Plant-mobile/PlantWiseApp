@@ -89,7 +89,7 @@ export default function RegisterScreen() {
               onBlur={() => setIsUserNameFocused(false)}
               textAlign={isRTL ? 'right' : 'left'}
             />
-            <Image source={require('../../assets/userName.png')} style={[styles.icon, { height: 18, width: 14 }]} />
+            <Image source={require('../../assets/auth/userName.png')} style={[styles.icon, { height: 18, width: 14 }]} />
           </View>
 
 
@@ -105,7 +105,7 @@ export default function RegisterScreen() {
               onBlur={() => setIsEmailFocused(false)}
               textAlign={isRTL ? 'right' : 'left'}
             />
-            <Image source={require('../../assets/loginCamera.png')} style={[styles.icon, { height: 17 }]} />
+            <Image source={require('../../assets/auth/loginCamera.png')} style={[styles.icon, { height: 17 }]} />
           </View>
 
           <View style={[styles.inputContainer, { marginTop: height * 0.005 }]}>
@@ -120,7 +120,7 @@ export default function RegisterScreen() {
               onBlur={() => setIsPasswordFocused(false)}
               textAlign={isRTL ? 'right' : 'left'}
             />
-            <Image source={require('../../assets/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
+            <Image source={require('../../assets/auth/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
           </View>
 
 
@@ -136,7 +136,7 @@ export default function RegisterScreen() {
               onBlur={() => setIsPasswordAgainFocused(false)}
               textAlign={isRTL ? 'right' : 'left'}
             />
-            <Image source={require('../../assets/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
+            <Image source={require('../../assets/auth/lockLogin.png')} style={[styles.icon, { height: 18 }]} />
           </View>
 
 
@@ -161,7 +161,7 @@ export default function RegisterScreen() {
 
 
           <View style={[styles.socialContainer, { marginTop: height * 0.005 }]}>
-            <Image source={require('../../assets/Frame_9.png')} />
+            <Image source={require('../../assets/auth/Frame_9.png')} />
           </View>
 
 
