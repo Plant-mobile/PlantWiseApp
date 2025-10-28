@@ -12,10 +12,14 @@ export class FertilizersController{
 @UseGuards(AuthRolesGuard)
 @Roles(true) 
 async addFertilizer(@Body() dto: AddFertilizersDto, @Req() req) {
-  const admin = req.user;
-  return this.fertilizersService.addFertilizer(dto, admin);
-
-    
+  // const admin = req.user;
+  return this.fertilizersService.addFertilizer(dto);
+} 
+@Get()    
+async getall() {
+  // const admin = req.user;
+  console.log('object');
+  return this.fertilizersService.findAll();
 }    
 
 }

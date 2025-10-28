@@ -11,11 +11,15 @@ constructor(
     private readonly fertilizersRepo: Repository<Fertilizer>,
 
 ){}
-async addFertilizer(dto: AddFertilizersDto, admin: User): Promise<Fertilizer> {
+async addFertilizer(dto: AddFertilizersDto): Promise<Fertilizer> {
   const fertilizer = this.fertilizersRepo.create({
     ...dto,
-    user: admin, 
   });
   return this.fertilizersRepo.save(fertilizer);
 }
+
+  findAll(): Promise<Fertilizer[]> {
+    return this.fertilizersRepo.find();
+  }
+
 }

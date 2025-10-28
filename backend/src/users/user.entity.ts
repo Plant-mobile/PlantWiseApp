@@ -34,8 +34,6 @@ updatedAt: Date;
     products:Product[];
     @OneToMany(() =>Review,(review) =>review.user)
     reviews:Review[];
-   @OneToMany(() => Fertilizer, (fertilizer) => fertilizer.user)
-Fertilizers: Fertilizer[];
    }
     
    

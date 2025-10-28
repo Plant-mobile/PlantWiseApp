@@ -8,7 +8,7 @@ id:number;
 @Column()
 name:string;
 @Column()
-category:string;
+catagory:string;
 @Column()
 img:string;
 @Column()
@@ -23,6 +23,8 @@ common_form:string;
 Indications:string;
 @Column()
 application:string;
-@ManyToOne(() =>User,(user) =>user.Fertilizers)
-user:User;
+@Column()
+symptoms:string;
+@Column()
+isSave:boolean;
 }
