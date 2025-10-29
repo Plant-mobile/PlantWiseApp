@@ -277,7 +277,7 @@ const Items = ({ data, catagory, type, title }) => {
                           { color: theme.textColor },
                         ]}
                       >
-                        {subItem.solubility}
+                        {subItem.symptoms}
                       </Text>
                     </LinearGradient>
                   </>
@@ -450,7 +450,7 @@ const Items = ({ data, catagory, type, title }) => {
               )
               .map((item, index) => (
                 <View style={styles.dataContainer} key={index}>
-                  <Image source={images[item.img]} style={styles.mainImage} />
+                  <Image source={{ uri: item.img }} style={styles.mainImage} />
                   <View style={styles.overlay}>
                     <Image
                       source={require("../assets/items/wave_1.png")}
