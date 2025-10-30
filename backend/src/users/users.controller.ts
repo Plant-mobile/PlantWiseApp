@@ -24,11 +24,9 @@ export class UsersController{
    // http://localhost:5000/api/users/auth/login
    @Post("auth/login")
    @HttpCode(HttpStatus.OK)
-   public login(){
-    console.log("called");
-    return 'hi'
+   public login(@Body() body: LoginDto){
    
-    //  return this.usersService.login(body)
+      return this.usersService.login(body)
    }
    // http://localhost:5000/api/users/current-user
    @Get("current-user")
@@ -44,12 +42,7 @@ export class UsersController{
    public updateUser(@CurrentUser() payload:JWTPayloadType,@Body() body:UpdateUserDto ){
     return this.usersService.update(payload.id, body);
    }
-   @Get()
-   @Roles(true)
-   @UseGuards(AuthRolesGuard)
-   public getAllUsers(){
-    return this.usersService.getAll();
-   }
+  
 
    
 //   @Post('forgot-password')
