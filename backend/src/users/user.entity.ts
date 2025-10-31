@@ -1,8 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn,ManyToOne, OneToMany } from "typeorm";
 import{CURRENT_TIMESTAMP} from '../utils/constants';
-import { Product } from "src/products/products.entity";
 import { Review } from "src/reviews/review.entity";
-import {Fertilizer} from "../Fertilizers/Fertilizers.entity"
+import {Fertilizer} from "../items/Fertilizers.entity"
 // src/users/user.entity.ts
 
 @Entity({name:'users'})
@@ -30,10 +29,7 @@ createdAt: Date;
 @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
 updatedAt: Date;
 
-    @OneToMany(() =>Product,(Product) =>Product.user)
-    products:Product[];
-    @OneToMany(() =>Review,(review) =>review.user)
-    reviews:Review[];
+   
    }
     
    

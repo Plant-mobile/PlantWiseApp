@@ -22,6 +22,8 @@ ProductionTime:string;
 Humidity:string;
 @Column()
 Profit:string;
+@Column()
+catagory:string;
 
 @Column({ default: false })
 isSave: boolean;

@@ -41,7 +41,8 @@ export class ItemsController {
     }
 
    
-    const folderPath = `./uploads/${type}`;
+    const folderPath = `./public/assets/${type}`;
+
     
     
     if (!fs.existsSync(folderPath)) {
@@ -53,14 +54,14 @@ export class ItemsController {
     const filePath = `${folderPath}/${fileName}`;
     fs.writeFileSync(filePath, file.buffer);
 
-    const imageUrl = `http://localhost:3000/uploads/${fileName}`;
+    const imageUrl = `http://localhost:5000/assets/${type}/${fileName}`;
 
     const admin: User = req.user;
 
     switch (type) {
-      case 'fertilizer':
+      case 'Fertilizers':
         return this.itemsService.addFertilizer({ ...body, img: imageUrl }, admin);
-      case 'plant':
+      case 'Plant':
         return this.itemsService.addPlant({ ...body, img: imageUrl }, admin);
       default:
         throw new BadRequestException('نوع العنصر غير معروف');

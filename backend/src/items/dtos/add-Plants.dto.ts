@@ -31,4 +31,7 @@ substrate:string;
    @IsString()
   @IsNotEmpty()
   type: string;
+@IsString()
+  @IsNotEmpty()
+  catagory:string;
 }

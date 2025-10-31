@@ -10,7 +10,7 @@ import { User } from './users/user.entity';
 import { Review } from './reviews/review.entity';
 import { config } from 'node:process';
 import { Plant } from './items/Plant.entity';
-//import { FertilizersModule } from './Fertilizers/Fertilizers.module';
+
 
 @Module({imports:[UsersModule,ReviewsModule,ItemsModule, 
   TypeOrmModule.forRootAsync({
