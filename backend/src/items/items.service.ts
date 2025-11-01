@@ -13,12 +13,12 @@ export class ItemsService {
     @InjectRepository(Fertilizer)
     private readonly fertilizersRepo: Repository<Fertilizer>,
 
-   @InjectRepository(Plant)
-   private readonly plantsRepo: Repository<Plant>,
+    @InjectRepository(Plant)
+    private readonly plantsRepo: Repository<Plant>,
 
     @InjectRepository(User)
     private readonly usersRepo: Repository<User>,
-  ) {}
+  ) { }
 
   // 🌿 سماد
   async addFertilizer(dto: AddFertilizersDto, admin: User) {
@@ -27,10 +27,17 @@ export class ItemsService {
   }
 
   // 🌱 نبتة
-   async addPlant(dto: AddPlantsDto, admin: User) {
-     const plant = this.plantsRepo.create({ ...dto });
+  async addPlant(dto: AddPlantsDto, admin: User) {
+    const plant = this.plantsRepo.create({ ...dto });
     return this.plantsRepo.save(plant);
-  
-   }
+
   }
- 
+
+  findAllFertilizers(): Promise<Fertilizer[]> {
+    return this.fertilizersRepo.find();
+  }
+  findAllPlants(): Promise<Plant[]> {
+    return this.plantsRepo.find();
+  }
+
+}

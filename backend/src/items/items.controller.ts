@@ -7,6 +7,7 @@ import {
   BadRequestException,
   Req,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
@@ -19,14 +20,14 @@ import { Roles } from '../users/decorators/user-role.decorator';
 
 @Controller('items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
+  constructor(private readonly itemsService: ItemsService) { }
 
   @Post('upload')
   @Roles(true)
   @UseGuards(AuthRolesGuard)
   @UseInterceptors(
     FileInterceptor('img', {
-      storage: multer.memoryStorage(), 
+      storage: multer.memoryStorage(),
     }),
   )
   async uploadItem(
@@ -40,16 +41,16 @@ export class ItemsController {
       throw new BadRequestException('type is required');
     }
 
-   
+
     const folderPath = `./public/assets/${type}`;
 
-    
-    
+
+
     if (!fs.existsSync(folderPath)) {
       throw new BadRequestException('مجلد التحميل غير موجود');
     }
 
-    
+
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = `${folderPath}/${fileName}`;
     fs.writeFileSync(filePath, file.buffer);
@@ -66,5 +67,17 @@ export class ItemsController {
       default:
         throw new BadRequestException('نوع العنصر غير معروف');
     }
+  }
+
+  @Get('getFertilizers')
+  async getAllFertilizers() {
+    console.log('object');
+    return this.itemsService.findAllFertilizers();
+  }
+
+  @Get('getPlants')
+  async getAllPlants() {
+    console.log('object');
+    return this.itemsService.findAllPlants();
   }
 }

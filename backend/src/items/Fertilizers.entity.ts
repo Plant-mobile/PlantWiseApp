@@ -25,6 +25,6 @@ indications:string;
 application:string;
 @Column()
 symptoms:string;
-@Column()
+@Column({ default: false })
 isSave:boolean;
 }
