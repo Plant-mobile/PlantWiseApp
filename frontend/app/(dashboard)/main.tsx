@@ -75,6 +75,10 @@ const Main = () => {
     router.replace('/(dashboard)/fertilizers')
   }
 
+  const goToAI = () => {
+    router.replace('/(dashboard)/scan')
+  }
+
   return (
     <SafeAreaView
       style={[
@@ -117,7 +121,7 @@ const Main = () => {
 
         {/* المحتوى */}
         <View style={styles.contentContainer}>
-          <Pressable>
+          <Pressable onPress={goToAI}>
             <Image
               source={require('../../assets/home/homeAI.png')}
               style={{ width: 175, height: 175 }}

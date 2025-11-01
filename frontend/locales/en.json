@@ -32,7 +32,9 @@
     "tip_six": " Easier care, richer harvest. Turn your love for farming into tangible results",
     "tip_seven": "Every plant you grow is a step toward fighting climate change",
     "tip_eight": "The challenge is huge, but precise care is the answer. Diagnose, treat, and thrive",
-    "":""
+    "loading": "Loading...",
+    "server_error": "Server error, please try again later",
+    "": ""
   },
   "login": {
     "login": "login",
@@ -47,7 +49,7 @@
     "register-form": "Create your new account",
     "login-here": "Sing in",
     "have-account": "Already have an account?",
-    "":""
+    "": ""
   },
   "items": {
     "fertilizers": "Fertilizers",
@@ -77,6 +79,6 @@
     "humidity": "Humidity:",
     "profit": "Profit:",
     "age": "Age: {{time}}",
-    "":""
+    "": ""
   }
 }

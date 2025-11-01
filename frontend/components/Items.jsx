@@ -49,31 +49,20 @@ const Items = ({ data, catagory, type, title }) => {
 
   const handleBack = () => {
     if (selectedItem) {
-      // كنت داخل عنصر فرعي → ارجع لقائمة العناصر الفرعية
       setSelectedItem(null);
     } else if (selectedCategory) {
-      // كنت داخل كاتيجوري → ارجع لقائمة الكاتيجوريز
       setSelectedCategory(null);
     } else {
       router.replace("/main");
       setSelectedCategory(null);
     }
   };
-  // const handelDetails = () => {
-  //   if (selectedItem) {
-  //     // كنت داخل عنصر فرعي → ارجع لقائمة العناصر الفرعية
-  //     setSelectedItem(null);
-  //   } else {
-  //     // كنت داخل كاتيجوري → ارجع لقائمة الكاتيجوريز
-  //     setSelectedCategory(null);
-  //   }
-  // };
 
-  // لو محدد كاتيجوري → اعرض عناصرها
+
   if (selectedCategory) {
     if (selectedItem) {
       const subItem = data.find((item) => item.name === selectedItem);
-      // صفحة التفاصيل للعنصر الداخلي
+
       return (
         <SafeAreaView
           style={[
@@ -118,7 +107,7 @@ const Items = ({ data, catagory, type, title }) => {
             <View
               style={{
                 display: "flex",
-                gap: width * 0.1,
+                gap: width * 0.13,
                 flexDirection: "row",
                 paddingLeft: width * 0.05,
                 paddingRight: width * 0.03,
@@ -126,12 +115,17 @@ const Items = ({ data, catagory, type, title }) => {
               }}
             >
               <View style={styles.detailsNameContainer}>
-                <Text style={[styles.detailsName, { fontSize: width * 0.06 }]}>
-                  {subItem.name}
-                </Text>
-                <Text style={[styles.detailsName, { fontSize: width * 0.1 }]}>
-                  {translation("items.fertilizers")}
-                </Text>
+                  <Text
+                    style={[
+                      styles.detailsName,
+                      { fontSize: width * 0.06, },
+                    ]}
+                  >
+                    {subItem.name}
+                  </Text>
+                  <Text style={[styles.detailsName, { fontSize: width * 0.1 }]}>
+                    {type === "fertilizer" && translation("items.fertilizers")}
+                  </Text>
                 <View
                   style={{
                     display: "flex",
@@ -143,16 +137,15 @@ const Items = ({ data, catagory, type, title }) => {
                     backgroundColor: theme.inputBackgroundColor,
                     borderRadius: 20,
                     left: 35,
-                    // paddingHorizontal: 10
                   }}
                 >
                   <Text style={styles.age}>
-                    {translation("items.age", { time: "1-2 months" })}
+                    {translation("items.age", { time: subItem.age })}
                   </Text>
                 </View>
               </View>
               <Image
-                source={require("../assets/items/urea.png")}
+                source={{ uri: subItem.img }}
                 style={styles.detailsImage}
                 resizeMode="cover"
               />
@@ -330,7 +323,7 @@ const Items = ({ data, catagory, type, title }) => {
                           { color: theme.textColor },
                         ]}
                       >
-                        {subItem.production_time}
+                        {subItem.productionTime}
                       </Text>
                     </LinearGradient>
                   </>
@@ -358,7 +351,7 @@ const Items = ({ data, catagory, type, title }) => {
                     ]}
                   >
                     {type === "fertilizer"
-                      ? subItem.Indications
+                      ? subItem.indications
                       : subItem.humidity}
                   </Text>
                 </LinearGradient>
@@ -652,12 +645,13 @@ const styles = StyleSheet.create({
     bottom: -4,
   },
   detailsNameContainer: {
-    maxWidth: width * 0.5,
+    maxWidth: width * 0.7,
   },
   detailsName: {
-    textAlign: "center",
     color: Colors.primaryColor,
     fontFamily: Colors.primaryFontBold,
+    textAlign: 'center',
+    width: width * 0.5
   },
   detailsImage: {
     width: width * 0.3,
@@ -690,6 +684,6 @@ const styles = StyleSheet.create({
   age: {
     fontFamily: Colors.primaryFontBold,
     color: Colors.primaryColor,
-    // alignItems: 'center'
+    fontSize: width * 0.04,
   },
 });

@@ -121,7 +121,6 @@ export default function profile() {
       keyboardShouldPersistTaps="handled"
       style={{ flex: 1, backgroundColor: theme.primaryBackgroundColor }}
     >
-      {/* Header */}
       <View
         style={[
           styles.header,
@@ -139,15 +138,12 @@ export default function profile() {
           />
         </Pressable>
       </View>
-
-      {/* Main Container */}
       <View
         style={[
           styles.container,
           { backgroundColor: theme.secondaryBackgroundColor },
         ]}
       >
-        {/* صورة واسم المستخدم */}
         <View style={styles.profileWrapper}>
           <View style={styles.cricle}>
             <Image
@@ -173,8 +169,6 @@ export default function profile() {
         </ThemedText>
 
         <Spacer height={30} />
-
-        {/* Form Inputs */}
         <View style={styles.inputContainer}>
           <ThemedText style={styles.label}>
             {translation("g.user-Name")}
@@ -259,7 +253,6 @@ export default function profile() {
 
           <Spacer height={40} />
 
-          {/* Toggle */}
           <View style={styles.toggleRow}>
             <ThemedText style={styles.toggleLabel}>
               {translation("g.dark_theme")}
@@ -275,7 +268,6 @@ export default function profile() {
 
           <Spacer height={30} />
 
-          {/* Button */}
           <View style={styles.button}>
             <LinearGradient
               colors={[
@@ -292,11 +284,9 @@ export default function profile() {
             </LinearGradient>
           </View>
 
-          {/* <Spacer height={20} /> */}
         </View>
       </View>
     </ScrollView>
-    // </SafeAreaView>
   );
 }
 

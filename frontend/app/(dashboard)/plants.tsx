@@ -1,61 +1,178 @@
-import { useRouter } from 'expo-router';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import ThemedView from '../../components/ThemedView';
-import Items from '../../components/Items';
-import { translation } from '../../services/translateService';
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  useColorScheme,
+} from "react-native";
+import Items from "../../components/Items";
+import { translation } from "../../services/translateService";
+import { router } from "expo-router";
+import { Colors } from "../../constants/Colors";
+import {
+  useSafeAreaInsets,
+  SafeAreaView,
+} from "react-native-safe-area-context";
+const { width, height } = Dimensions.get("window");
 
 export default function ProductList() {
-  const router = useRouter();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme] ?? Colors.light;
+  const insets = useSafeAreaInsets();
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+      setError(translation("g.server_error"));
+      setLoading(false);
+    }, 5000);
 
-const data = [
-    {id: 1, name: 'Urea', catagory: 'nitrogen_fertilizers', img: 'nitrogen', climate: "CO(NH2)2",substrate: '46%N', temperatures: 'Very high', production_time: 'Small white granules, sometimes a soluble powder', humidity: "To stimulate vegetative growth, strong leaves and stems", profit: "Soil scatter, side fertilize, or spray solution"},
-    {id: 1, name: 'Ammonium sulphate', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
-    {id: 1, name: 'some name', catagory: 'micrinurent_fertilizers', img: 'micrinurent'},
-    {id: 1, name: 'Ammonium nitratee', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
-    {id: 1, name: 'Calcium nitrate', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
-    {id: 1, name: 'some name', catagory: 'phoshate_fertilizers', img: 'phoshate'},
-    {id: 1, name: 'Calcium nitrate', catagory: 'nitrogen_fertilizers', img: 'nitrogen'},
-    {id: 1, name: 'some name', catagory: 'phoshate_fertilizers', img: 'phoshate'},
-    {id: 1, name: 'some name', catagory: 'micrinurent_fertilizers', img: 'micrinurent'},
-    {id: 1, name: 'some name', catagory: 'potassium_fertilizers', img: 'potassium'},
-    {id: 1, name: 'some name', catagory: 'potassium_fertilizers', img: 'potassium'},
-    {id: 1, name: 'some name', catagory: 'phoshate_fertilizers', img: 'phoshate'},
-    // {id: 2, name: 'some name', catagory: 'Nitrogen Fertilizers', img: 'flower'}
-];
+    const getData = async () => {
+      try {
+        const res = await fetch(
+          "http://192.168.1.87:5000/items/getPlants",
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+          }
+        );
 
+        clearTimeout(timeout);
+
+        if (!res.ok) {
+          throw new Error("استجابة غير صالحة من السيرفر");
+        }
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        setError(translation("g.server_error"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getData();
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, []);
+
+  const handleBack = () => {
+    router.replace("/main");
+  };
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={handleBack}
+          style={{
+            alignSelf: "flex-start",
+          }}
+        >
+          <Text style={[styles.back]}>
+            <Image source={require("../../assets/items/arrow_en.png")} />
+            {translation("g.home")}
+          </Text>
+        </TouchableOpacity>
+        <View
+          style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
+        ></View>
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+          }}
+        >
+          <ActivityIndicator size="large" color="#00A86B" />
+          <Text style={{ marginTop: 10, fontSize: 16, color: "#555" }}>
+            {translation("g.loading")}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={handleBack}
+          style={{
+            alignSelf: "flex-start",
+          }}
+        >
+          <Text style={[styles.back]}>
+            <Image source={require("../../assets/items/arrow_en.png")} />
+            {translation("g.home")}
+          </Text>
+        </TouchableOpacity>
+        <View
+          style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
+        ></View>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={{ color: "red", fontSize: 16 }}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <Items data={data}
-       catagory={[
-      { catagory: 'fungi', img: 'mushroom'},
-      { catagory: 'shrubs', img: 'shrubs'},
-      { catagory: 'trees', img: 'trees'},
-      { catagory: 'herbaceous', img: 'herbs'},
-    ]}
-    type={'plants'}
-    title={translation('items.plant_type')}
-     />
-    // <ThemedView style={{ padding: 20, height: "100%" }}>
-    //   <FlatList
-    //     data={products}
-    //     keyExtractor={(item) => item.id.toString()}
-    //     renderItem={({ item }) => (
-    //       <TouchableOpacity
-    //         onPress={() => router.push(`/details/${JSON.stringify(item)}`)} 
-    //         style={{
-    //           backgroundColor: '#f2f2f2',
-    //           padding: 15,
-    //           borderRadius: 8,
-    //           marginBottom: 10,
-    //         }}
-    //       >
-    //         <Text style={{ fontSize: 18 }}>{item.name}</Text>
-    //         <Text style={{ color: 'gray' }}>${item.price}</Text>
-    //       </TouchableOpacity>
-    //     )}
-    //   />
-    // </ThemedView>
+    <View style={{ flex: 1 }}>
+      <Items
+        data={data}
+        catagory={[
+          { catagory: "fungi", img: "mushroom" },
+          { catagory: "shrubs", img: "shrubs" },
+          { catagory: "trees", img: "trees" },
+          { catagory: "herbaceous", img: "herbs" },
+        ]}
+        type={"plants"}
+        title={translation("items.plant_type")}
+      />
+    </View>
   );
 }
 
-
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.light.secondaryBackgroundColor,
+  },
+  back: {
+    color: Colors.primaryColor,
+    fontFamily: Colors.primaryFontBold,
+    fontSize: 20,
+    marginBottom: 10,
+  },
+  line: {
+    width: width,
+    height: 3,
+  },
+});

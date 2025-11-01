@@ -1,5 +1,5 @@
 {
-    "g": {
+  "g": {
     "welcome": "Welcome",
     "email": "Email",
     "user-Name": "Username",
@@ -23,18 +23,20 @@
     "dark_theme": "Turn Dark Theme",
     "update_profile": "Update Profile",
     "details": "Details",
-      "":""
-    },
-    "login": {
-      "login": "تسجيل الدخول",
-      "login-form": "نموذج تسجيل الدخول",
-      "register-here": "أنشىء حساب هنا",
-      "":""
-    },
-    "register": {
-      "register": "انشاء حساب",
-      "register-form": "نموذج التسجيل",
-      "login-here": "سجل الدخول هنا",
-      "":""
-    }
+    "loading": "جاري التحميل...",
+    "server_error": "حدث خطأ في السيرفر، يرجى المحاولة لاحقًا",
+    "": ""
+  },
+  "login": {
+    "login": "تسجيل الدخول",
+    "login-form": "نموذج تسجيل الدخول",
+    "register-here": "أنشىء حساب هنا",
+    "": ""
+  },
+  "register": {
+    "register": "انشاء حساب",
+    "register-form": "نموذج التسجيل",
+    "login-here": "سجل الدخول هنا",
+    "": ""
+  }
 }
