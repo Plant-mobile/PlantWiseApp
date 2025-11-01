@@ -7,7 +7,7 @@ id:number;
 @Column()
 name:string;
 @Column()
-Age:string;
+age:string;
 @Column()
 climate:string;
 @Column()
@@ -17,11 +17,11 @@ img:string;
 @Column()
 temperatures:string;
 @Column()
-ProductionTime:string;
+productionTime:string;
 @Column()
-Humidity:string;
+humidity:string;
 @Column()
-Profit:string;
+profit:string;
 @Column()
 catagory:string;
 

@@ -6,7 +6,7 @@ export class AddPlantsDto {
   name:string;
   @IsString()
   @IsNotEmpty()
-  Age:string;
+  age:string;
  @IsString()
   @IsNotEmpty()
   climate:string;
@@ -21,13 +21,13 @@ substrate:string;
   temperatures:string;
   @IsString()
   @IsNotEmpty()
-  ProductionTime:string;
+  productionTime:string;
   @IsString()
   @IsNotEmpty()
-  Humidity:string;
+  humidity:string;
   @IsString()
   @IsNotEmpty()
-  Profit:string;
+  profit:string;
    @IsString()
   @IsNotEmpty()
   type: string;
