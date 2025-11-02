@@ -1,4 +1,4 @@
-import { Entity ,PrimaryGeneratedColumn,Column, ManyToOne} from "typeorm";
+import { Entity ,PrimaryGeneratedColumn,Column, ManyToOne,UpdateDateColumn} from "typeorm";
 import { User } from "src/users/user.entity";
 
 @Entity({name:'fertilizers'})
@@ -27,4 +27,7 @@ application:string;
 symptoms:string;
 @Column({ default: false })
 isSave:boolean;
+@UpdateDateColumn({ type: 'timestamptz' })
+updatedAt: Date;
+
 }

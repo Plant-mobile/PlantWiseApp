@@ -1,4 +1,4 @@
-import { Entity ,PrimaryGeneratedColumn,Column, ManyToOne} from "typeorm";
+import { Entity ,PrimaryGeneratedColumn,Column, ManyToOne,UpdateDateColumn} from "typeorm";
 
 @Entity({name:'plants'})
 export class Plant{
@@ -27,5 +27,8 @@ catagory:string;
 
 @Column({ default: false })
 isSave: boolean;
+@UpdateDateColumn({ type: 'timestamptz' })
+updatedAt: Date;
+
 
 }
