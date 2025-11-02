@@ -147,8 +147,8 @@ export default function ProductList() {
         catagory={[
           { catagory: "nitrogen_fertilizers", img: "nitrogen" },
           { catagory: "micrinurent_fertilizers", img: "micrinurent" },
-          { catagory: "nitrogen_fertilizers", img: "potassium" },
-          { catagory: "nitrogen_fertilizers", img: "phoshate" },
+          { catagory: "potassium_fertilizers", img: "potassium" },
+          { catagory: "phoshate_fertilizers", img: "phoshate" },
         ]}
         type={"fertilizer"}
         title={translation("items.fertilizers_type")}

@@ -24,7 +24,7 @@ catagory: string;
   approximate_proportions: string;
 
   @IsString()
-  @IsNotEmpty()
+  
   solubility: string;
 
   @IsString()
