@@ -21,7 +21,7 @@ import { Roles } from '../users/decorators/user-role.decorator';
 
 @Controller('items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
+  constructor(private readonly itemsService: ItemsService) { }
 
   @Post('upload')
   @Roles(true)
@@ -58,53 +58,36 @@ export class ItemsController {
     }
   }
 
-  // ✅ تعديل GET: getFertilizers
-  @Get('getFertilizers')
-  async getAllFertilizers(
-    @Query('since') since?: string,
-    @Query('lastId') lastId?: string,
-    @Query('limit') limit?: string,
-  ) {
-    const parsedSince = since ? new Date(since) : null;
-    const parsedLastId = lastId ? parseInt(lastId, 10) : 0;
-    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 500) : 200;
+  @Get('plants')
+  async getPlants(@Query('since') since?: string) {
+    const lastUpdated = since ? new Date(since) : null;
 
-    const fertilizers = parsedSince
-      ? await this.itemsService.findUpdatedFertilizers(parsedSince, parsedLastId, parsedLimit)
-      : await this.itemsService.findAllFertilizers();
+    const plants = lastUpdated
+      ? await this.itemsService.findUpdatedAfter(lastUpdated, 'plants')
+      : await this.itemsService.findAllPlants();
 
-    const latest = await this.itemsService.findLatestFertilizerUpdate();
-
+    const latest = await this.itemsService.findLatestUpdateTime('plants');
+    console.log(plants);
     return {
-      fertilizers,
-      last_updated: latest ? latest.updatedAt.toISOString() : new Date().toISOString(),
-      last_id: latest ? latest.lastId : (fertilizers.length ? fertilizers[fertilizers.length - 1].id : 0),
-      count: fertilizers.length,
+      plants,
+      last_updated: latest,
     };
   }
 
-  // ✅ تعديل GET: getPlants
-  @Get('getPlants')
-  async getAllPlants(
-    @Query('since') since?: string,
-    @Query('lastId') lastId?: string,
-    @Query('limit') limit?: string,
-  ) {
-    const parsedSince = since ? new Date(since) : null;
-    const parsedLastId = lastId ? parseInt(lastId, 10) : 0;
-    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 500) : 200;
+  @Get('fertilizers')
+  async getFertilizers(@Query('since') since?: string) {
+    const lastUpdated = since ? new Date(since) : null;
 
-    const plants = parsedSince
-      ? await this.itemsService.findUpdatedPlants(parsedSince, parsedLastId, parsedLimit)
-      : await this.itemsService.findAllPlants();
 
-    const latest = await this.itemsService.findLatestPlantUpdate();
+    const fertilizers = lastUpdated
+      ? await this.itemsService.findUpdatedAfter(lastUpdated, 'fertilizers')
+      : await this.itemsService.findAllFertilizers();
 
+    const latest = await this.itemsService.findLatestUpdateTime('fertilizers');
+    console.log(fertilizers);
     return {
-      plants,
-      last_updated: latest ? latest.updatedAt.toISOString() : new Date().toISOString(),
-      last_id: latest ? latest.lastId : (plants.length ? plants[plants.length - 1].id : 0),
-      count: plants.length,
+      fertilizers,
+      last_updated: latest,
     };
   }
 }

@@ -24,10 +24,9 @@ humidity:string;
 profit:string;
 @Column()
 catagory:string;
-
 @Column({ default: false })
 isSave: boolean;
-@UpdateDateColumn({ type: 'timestamptz' })
+@UpdateDateColumn({ type: 'timestamptz', precision: 3 })
 updatedAt: Date;
 
 

@@ -78,7 +78,7 @@
     "production_time": "Production Time:",
     "humidity": "Humidity:",
     "profit": "Profit:",
-    "age": "Age: {{time}}",
+    "age": "Age:",
     "": ""
   }
 }

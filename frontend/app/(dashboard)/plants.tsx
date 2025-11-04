@@ -17,10 +17,13 @@ import {
   useSafeAreaInsets,
   SafeAreaView,
 } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
+const PLANTS_KEY = "plants_cache";
+const UPDATED_KEY = "plants_last_updated";
 
 export default function ProductList() {
-  const [data, setData] = useState([]);
+  const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const colorScheme = useColorScheme();
@@ -36,8 +39,16 @@ export default function ProductList() {
 
     const getData = async () => {
       try {
+        const cached = await AsyncStorage.getItem(PLANTS_KEY);
+        const lastUpdated = await AsyncStorage.getItem(UPDATED_KEY);
+        if (cached){
+          setPlants(JSON.parse(cached));
+          setLoading(false);
+        }
         const res = await fetch(
-          "http://192.168.1.87:5000/items/getPlants",
+          `http://192.168.1.87:5000/items/plants${
+            lastUpdated ? `?since=${lastUpdated}` : ""
+          }`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -51,7 +62,18 @@ export default function ProductList() {
           throw new Error("استجابة غير صالحة من السيرفر");
         }
         const json = await res.json();
-        setData(json);
+        if (json.plants?.length > 0) {
+          const current = JSON.parse(cached || "[]");
+
+          const newFertilizers = mergePlants(current, json.plants);
+          await AsyncStorage.setItem(
+            PLANTS_KEY,
+            JSON.stringify(newFertilizers)
+          );
+          await AsyncStorage.setItem(UPDATED_KEY, json.last_updated);
+
+          setPlants(newFertilizers);
+        }
       } catch (err) {
         setError(translation("g.server_error"));
       } finally {
@@ -60,6 +82,12 @@ export default function ProductList() {
     };
 
     getData();
+    const mergePlants = (oldList, newList) => {
+      const map = new Map();
+      [...oldList, ...newList].forEach((p) => map.set(p.id, p));
+      return Array.from(map.values());
+    };
+
 
     return () => {
       clearTimeout(timeout);
@@ -146,7 +174,7 @@ export default function ProductList() {
   return (
     <View style={{ flex: 1 }}>
       <Items
-        data={data}
+        data={plants}
         catagory={[
           { catagory: "fungi", img: "mushroom" },
           { catagory: "shrubs", img: "shrubs" },

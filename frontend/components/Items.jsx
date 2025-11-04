@@ -107,42 +107,23 @@ const Items = ({ data, catagory, type, title }) => {
             <View
               style={{
                 display: "flex",
-                gap: width * 0.13,
+                gap: width * 0.01,
                 flexDirection: "row",
                 paddingLeft: width * 0.05,
                 paddingRight: width * 0.03,
-                paddingBottom: height * 0.02,
+                paddingBottom: height * 0.01,
+                justifyContent: 'space-evenly'
               }}
             >
-              <View style={styles.detailsNameContainer}>
+              <View style={[styles.detailsNameContainer, { width: width * 0.6 }]}>
                   <Text
                     style={[
                       styles.detailsName,
-                      { fontSize: width * 0.06, },
+                      { fontSize: width * 0.08, },
                     ]}
                   >
                     {subItem.name}
                   </Text>
-                  <Text style={[styles.detailsName, { fontSize: width * 0.1 }]}>
-                    {type === "fertilizer" && translation("items.fertilizers")}
-                  </Text>
-                <View
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: width * 0.4,
-                    height: height * 0.05,
-                    marginTop: height * 0.03,
-                    backgroundColor: theme.inputBackgroundColor,
-                    borderRadius: 20,
-                    left: 35,
-                  }}
-                >
-                  <Text style={styles.age}>
-                    {translation("items.age", { time: subItem.age })}
-                  </Text>
-                </View>
               </View>
               <Image
                 source={{ uri: subItem.img }}
@@ -167,6 +148,31 @@ const Items = ({ data, catagory, type, title }) => {
                 {subItem.name} {translation("items.overview")}:
               </Text>
 
+              {type == "plants" && (
+                <View style={{ marginBottom: height * 0.01 }}>
+                  <Text style={styles.detailsLabel}>
+                    {translation("items.age")}
+                  </Text>
+                  <LinearGradient
+                    colors={[
+                      theme.inputBackgroundColor,
+                      theme.primaryBackgroundColor,
+                    ]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.detailsFeild}
+                  >
+                    <Text
+                      style={[
+                        styles.detailsButtonText,
+                        { color: theme.textColor },
+                      ]}
+                    >
+                      {subItem.age}
+                    </Text>
+                  </LinearGradient>
+                </View>
+              )}
               <View style={{ marginBottom: height * 0.01 }}>
                 <Text style={styles.detailsLabel}>
                   {type === "fertilizer"
@@ -645,13 +651,13 @@ const styles = StyleSheet.create({
     bottom: -4,
   },
   detailsNameContainer: {
-    maxWidth: width * 0.7,
+    justifyContent: 'center'
   },
   detailsName: {
     color: Colors.primaryColor,
     fontFamily: Colors.primaryFontBold,
-    textAlign: 'center',
-    width: width * 0.5
+    textAlign: "center",
+    width: "100%",
   },
   detailsImage: {
     width: width * 0.3,
@@ -680,10 +686,5 @@ const styles = StyleSheet.create({
   detailsButtonText: {
     fontSize: width * 0.07,
     fontFamily: Colors.primaryFont,
-  },
-  age: {
-    fontFamily: Colors.primaryFontBold,
-    color: Colors.primaryColor,
-    fontSize: width * 0.04,
-  },
+  }, 
 });
