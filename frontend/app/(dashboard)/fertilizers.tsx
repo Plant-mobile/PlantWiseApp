@@ -41,12 +41,12 @@ export default function ProductList() {
       try {
         const cached = await AsyncStorage.getItem(FERTILIZERS_KEY);
         const lastUpdated = await AsyncStorage.getItem(UPDATED_KEY);
-        if (cached){
+        if (cached) {
           setFertilizers(JSON.parse(cached));
           setLoading(false);
         }
         const res = await fetch(
-          `http://192.168.1.87:5000/items/fertilizers${
+          `http://192.168.1.121:5000/items/fertilizers${
             lastUpdated ? `?since=${lastUpdated}` : ""
           }`,
           {
@@ -62,18 +62,18 @@ export default function ProductList() {
           throw new Error("استجابة غير صالحة من السيرفر");
         }
         const json = await res.json();
-        if (json.fertilizers?.length > 0) {
-          const current = JSON.parse(cached || "[]");
 
-          const newFertilizers = mergeFertilizers(current, json.fertilizers);
-          await AsyncStorage.setItem(
-            FERTILIZERS_KEY,
-            JSON.stringify(newFertilizers)
-          );
-          await AsyncStorage.setItem(UPDATED_KEY, json.last_updated);
+        const current = JSON.parse(cached || "[]");
 
-          setFertilizers(newFertilizers);
-        }
+        const newFertilizers = mergeFertilizers(current, json.fertilizers);
+
+        await AsyncStorage.setItem(
+          FERTILIZERS_KEY,
+          JSON.stringify(newFertilizers)
+        );
+        await AsyncStorage.setItem(UPDATED_KEY, json.last_updated);
+
+        setFertilizers(newFertilizers);
       } catch (err) {
         setError(translation("g.server_error"));
       } finally {
@@ -84,7 +84,13 @@ export default function ProductList() {
     getData();
     const mergeFertilizers = (oldList, newList) => {
       const map = new Map();
-      [...oldList, ...newList].forEach((p) => map.set(p.id, p));
+      [...oldList, ...newList].forEach((item) => {
+        if (item.isDeleted) {
+          map.delete(item.id);
+        } else {
+          map.set(item.id, item);
+        }
+      });
       return Array.from(map.values());
     };
 

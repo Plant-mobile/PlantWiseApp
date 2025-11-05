@@ -18,7 +18,7 @@ export class ItemsService {
 
     @InjectRepository(User)
     private readonly usersRepo: Repository<User>,
-  ) {}
+  ) { }
 
 
   async addFertilizer(dto: AddFertilizersDto, admin: User) {
@@ -42,23 +42,28 @@ export class ItemsService {
   async findUpdatedAfter(date: Date, type: string) {
     if (type === 'fertilizers')
       return this.fertilizersRepo.find({
-        where: { updatedAt: MoreThan(date) },
+        where: [{ updatedAt: MoreThan(date) },
+        { isDeleted: true },
+        ],
       });
     return this.plantsRepo.find({
-      where: { updatedAt: MoreThan(date) },
-    });
-}
+      where: [{ updatedAt: MoreThan(date) },
+      { isDeleted: true },
+      ],
 
-async findLatestUpdateTime(type: String) {
-  const latest = type =="fertilizers" ?
-  await this.fertilizersRepo.find({
-    order: { updatedAt: 'DESC' },
-    take: 1,
-  }):
-  await this.plantsRepo.find({
-    order: { updatedAt: 'DESC' },
-    take: 1,
-  });
-  return latest[0]?.updatedAt ?? new Date();
-}
+    });
+  }
+
+  async findLatestUpdateTime(type: String) {
+    const latest = type == "fertilizers" ?
+      await this.fertilizersRepo.find({
+        order: { updatedAt: 'DESC' },
+        take: 1,
+      }) :
+      await this.plantsRepo.find({
+        order: { updatedAt: 'DESC' },
+        take: 1,
+      });
+    return latest[0]?.updatedAt ?? new Date();
+  }
 }

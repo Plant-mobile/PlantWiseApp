@@ -67,7 +67,6 @@ export class ItemsController {
       : await this.itemsService.findAllPlants();
 
     const latest = await this.itemsService.findLatestUpdateTime('plants');
-    console.log(plants);
     return {
       plants,
       last_updated: latest,

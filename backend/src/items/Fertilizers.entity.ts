@@ -29,5 +29,7 @@ symptoms:string;
 isSave:boolean;
 @UpdateDateColumn({ type: 'timestamptz', precision: 3 })
 updatedAt: Date;
+@Column({ default: false })
+isDeleted:boolean;
 
 }

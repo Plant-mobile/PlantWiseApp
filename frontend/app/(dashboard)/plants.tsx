@@ -41,12 +41,12 @@ export default function ProductList() {
       try {
         const cached = await AsyncStorage.getItem(PLANTS_KEY);
         const lastUpdated = await AsyncStorage.getItem(UPDATED_KEY);
-        if (cached){
+        if (cached) {
           setPlants(JSON.parse(cached));
           setLoading(false);
         }
         const res = await fetch(
-          `http://192.168.1.87:5000/items/plants${
+          `http://192.168.1.121:5000/items/plants${
             lastUpdated ? `?since=${lastUpdated}` : ""
           }`,
           {
@@ -55,25 +55,20 @@ export default function ProductList() {
             signal: controller.signal,
           }
         );
-
         clearTimeout(timeout);
 
         if (!res.ok) {
           throw new Error("استجابة غير صالحة من السيرفر");
         }
         const json = await res.json();
-        if (json.plants?.length > 0) {
-          const current = JSON.parse(cached || "[]");
 
-          const newFertilizers = mergePlants(current, json.plants);
-          await AsyncStorage.setItem(
-            PLANTS_KEY,
-            JSON.stringify(newFertilizers)
-          );
-          await AsyncStorage.setItem(UPDATED_KEY, json.last_updated);
+        const current = JSON.parse(cached || "[]");
 
-          setPlants(newFertilizers);
-        }
+        const newFertilizers = mergePlants(current, json.plants);
+        await AsyncStorage.setItem(PLANTS_KEY, JSON.stringify(newFertilizers));
+        await AsyncStorage.setItem(UPDATED_KEY, json.last_updated);
+
+        setPlants(newFertilizers);
       } catch (err) {
         setError(translation("g.server_error"));
       } finally {
@@ -84,10 +79,15 @@ export default function ProductList() {
     getData();
     const mergePlants = (oldList, newList) => {
       const map = new Map();
-      [...oldList, ...newList].forEach((p) => map.set(p.id, p));
+      [...oldList, ...newList].forEach((item) => {
+        if (item.isDeleted) {
+          map.delete(item.id);
+        } else {
+          map.set(item.id, item);
+        }
+      });
       return Array.from(map.values());
     };
-
 
     return () => {
       clearTimeout(timeout);
