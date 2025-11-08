@@ -1,0 +1,20 @@
+# ملفات بايثون المؤقتة
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+
+# البيئات الافتراضية (إذا كنت تستخدم venv)
+venv/
+env/
+
+# ملفات VS Code (خاصة بك)
+.vscode/
+
+# ملفات نظام التشغيل (Windows, Mac)
+.DS_Store
+Thumbs.db
+
+# ملفات نتائج الموديل المؤقتة أو Logs (اختياري)
+/logs/
