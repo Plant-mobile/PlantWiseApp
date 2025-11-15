@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   View,
   Text,
-  ActivityIndicator,
   Image,
   TouchableOpacity,
   StyleSheet,
@@ -18,6 +17,7 @@ import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingProgressBar from "../../components/LoadingProgressBar";
 const { width, height } = Dimensions.get("window");
 const FERTILIZERS_KEY = "fertilizers_cache";
 const UPDATED_KEY = "fertilizers_last_updated";
@@ -29,12 +29,22 @@ export default function ProductList() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const insets = useSafeAreaInsets();
+
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let current = 0;
+    const interval = setInterval(() => {
+      current += 0.1;
+      setProgress(current);
+      if (current >= 1) clearInterval(interval);
+    }, 500);
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
-      setError(translation("g.server_error"));
-      setLoading(false);
     }, 5000);
 
     const getData = async () => {
@@ -46,7 +56,7 @@ export default function ProductList() {
           setLoading(false);
         }
         const res = await fetch(
-          `http://192.168.1.121:5000/items/fertilizers${
+          `http://192.168.1.871:5000/items/fertilizers${
             lastUpdated ? `?since=${lastUpdated}` : ""
           }`,
           {
@@ -75,7 +85,10 @@ export default function ProductList() {
 
         setFertilizers(newFertilizers);
       } catch (err) {
-        setError(translation("g.server_error"));
+        const cached = await AsyncStorage.getItem(FERTILIZERS_KEY);
+        if (!cached) {
+          setError(translation("g.server_error"));
+        }
       } finally {
         setLoading(false);
       }
@@ -105,43 +118,27 @@ export default function ProductList() {
   };
   if (loading) {
     return (
-      <SafeAreaView
+      <View
         style={[
-          styles.safeArea,
-          {
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          },
+          styles.container,
+          { backgroundColor: theme.secondaryBackgroundColor },
         ]}
       >
-        <TouchableOpacity
-          onPress={handleBack}
-          style={{
-            alignSelf: "flex-start",
-          }}
-        >
-          <Text style={[styles.back]}>
-            <Image source={require("../../assets/items/arrow_en.png")} />
-            {translation("g.home")}
-          </Text>
-        </TouchableOpacity>
-        <View
-          style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
-        ></View>
-        <View
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-          }}
-        >
-          <ActivityIndicator size="large" color="#00A86B" />
-          <Text style={{ marginTop: 10, fontSize: 16, color: "#555" }}>
-            {translation("g.loading")}
-          </Text>
+        <View style={{width: '100%', marginLeft: width * 0.34}}>
+          <Image
+            source={require("../../assets/items/loading/loading_man.png")}
+          />
         </View>
-      </SafeAreaView>
+        <Text style={[styles.loadFont, { color: theme.primaryColor }]}>
+          {translation("g.loading")}
+        </Text>
+        <View style={{ width: "100%", height: 100 }}>
+          <LoadingProgressBar progress={progress} />
+        </View>
+         <Text style={[styles.loadDetails, { color: theme.primaryColor }]}>
+          {translation("g.wait")}
+         </Text>
+      </View>
     );
   }
 
@@ -150,7 +147,11 @@ export default function ProductList() {
       <SafeAreaView
         style={[
           styles.safeArea,
-          { paddingTop: insets.top, paddingBottom: insets.bottom },
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            backgroundColor: theme.secondaryBackgroundColor,
+          },
         ]}
       >
         <TouchableOpacity
@@ -170,7 +171,11 @@ export default function ProductList() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text style={{ color: "red", fontSize: 16 }}>{error}</Text>
+          <Image
+            source={require("../../assets/items/error/504.png")}
+            // style={styles.detailsImage}
+            resizeMode="cover"
+          />
         </View>
       </SafeAreaView>
     );
@@ -196,7 +201,6 @@ export default function ProductList() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.secondaryBackgroundColor,
   },
   back: {
     color: Colors.primaryColor,
@@ -207,5 +211,23 @@ const styles = StyleSheet.create({
   line: {
     width: width,
     height: 3,
+  },
+  container: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    display: "flex",
+    height: "100%",
+    flexDirection: "column",
+  },
+  loadFont: {
+    fontSize: width * 0.1,
+    fontFamily: Colors.primaryFontBold,
+  },
+  loadDetails: {
+    fontSize: width * 0.04,
+    fontFamily: Colors.primaryFontBold,
+    textAlign: 'center',
+    width :300
   },
 });

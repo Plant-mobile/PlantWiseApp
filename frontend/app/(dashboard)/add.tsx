@@ -19,7 +19,7 @@ import { Colors } from "../../constants/Colors";
 import { translation } from "../../services/translateService";
 import { router } from "expo-router";
 
-const scan = () => {
+const add = () => {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -47,7 +47,7 @@ const scan = () => {
   );
 };
 
-export default scan;
+export default add;
 
 const styles = StyleSheet.create({
   safeArea: {

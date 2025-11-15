@@ -86,11 +86,15 @@ export default function Intro() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* المحتوى */}
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        { backgroundColor: theme.primaryBackgroundColor },
+      ]}
+    >
       <View style={styles.content}>{renderView()}</View>
 
-      {/* الأسفل */}
+
       <View style={[styles.footer, { paddingBottom: insets.bottom - 10 }]}>
         <View style={styles.dotsContainer}>
           {["one", "two", "three"].map((item, index) => (
@@ -98,6 +102,7 @@ export default function Intro() {
               key={index}
               style={[
                 styles.dot,
+                { borderColor: theme.dotsBorderColor },
                 dot === item && {
                   backgroundColor: Colors.primaryColor,
                   borderColor: Colors.primaryColor,
@@ -117,7 +122,7 @@ export default function Intro() {
           ]}
         >
           <LinearGradient
-            colors={[theme.inputBackgroundColor, theme.primaryBackgroundColor]}
+            colors={[theme.linearGradientColorOne, theme.linearGradientColorTwo]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.button}
@@ -135,7 +140,6 @@ export default function Intro() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.primaryBackgroundColor,
   },
   content: {
     flex: 1,
@@ -155,7 +159,6 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: Colors.dotsBorderColor,
   },
   buttonWrapper: {
     // display: 'flex',

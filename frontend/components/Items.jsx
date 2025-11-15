@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   View,
@@ -19,6 +19,8 @@ import {
 import { Colors } from "../constants/Colors";
 import { translation } from "../services/translateService";
 import { LinearGradient } from "expo-linear-gradient";
+import ConfirmModal from "./ConfirmModal";
+import { UserContext } from "../services/auth/auth";
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,6 +48,8 @@ const Items = ({ data, catagory, type, title }) => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const insets = useSafeAreaInsets();
+  const [showModal, setShowModal] = useState(false);
+    const { user } = useContext(UserContext);
 
   const handleBack = () => {
     if (selectedItem) {
@@ -58,7 +62,6 @@ const Items = ({ data, catagory, type, title }) => {
     }
   };
 
-
   if (selectedCategory) {
     if (selectedItem) {
       const subItem = data.find((item) => item.name === selectedItem);
@@ -69,7 +72,6 @@ const Items = ({ data, catagory, type, title }) => {
             styles.container,
             {
               backgroundColor: theme.secondaryBackgroundColor,
-              paddingTop: insets.top,
             },
           ]}
         >
@@ -112,18 +114,15 @@ const Items = ({ data, catagory, type, title }) => {
                 paddingLeft: width * 0.05,
                 paddingRight: width * 0.03,
                 paddingBottom: height * 0.01,
-                justifyContent: 'space-evenly'
+                justifyContent: "space-evenly",
               }}
             >
-              <View style={[styles.detailsNameContainer, { width: width * 0.6 }]}>
-                  <Text
-                    style={[
-                      styles.detailsName,
-                      { fontSize: width * 0.08, },
-                    ]}
-                  >
-                    {subItem.name}
-                  </Text>
+              <View
+                style={[styles.detailsNameContainer, { width: width * 0.6 }]}
+              >
+                <Text style={[styles.detailsName, { fontSize: width * 0.08 }]}>
+                  {subItem.name}
+                </Text>
               </View>
               <Image
                 source={{ uri: subItem.img }}
@@ -155,8 +154,8 @@ const Items = ({ data, catagory, type, title }) => {
                   </Text>
                   <LinearGradient
                     colors={[
-                      theme.inputBackgroundColor,
-                      theme.primaryBackgroundColor,
+                      theme.linearGradientColorOne,
+                      theme.linearGradientColorTwo,
                     ]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
@@ -165,7 +164,7 @@ const Items = ({ data, catagory, type, title }) => {
                     <Text
                       style={[
                         styles.detailsButtonText,
-                        { color: theme.textColor },
+                        { color: theme.valueTextColor },
                       ]}
                     >
                       {subItem.age}
@@ -181,8 +180,8 @@ const Items = ({ data, catagory, type, title }) => {
                 </Text>
                 <LinearGradient
                   colors={[
-                    theme.inputBackgroundColor,
-                    theme.primaryBackgroundColor,
+                    theme.linearGradientColorOne,
+                    theme.linearGradientColorTwo,
                   ]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -191,7 +190,7 @@ const Items = ({ data, catagory, type, title }) => {
                   <Text
                     style={[
                       styles.detailsButtonText,
-                      { color: theme.textColor },
+                      { color: theme.valueTextColor },
                     ]}
                   >
                     {type === "fertilizer"
@@ -208,8 +207,8 @@ const Items = ({ data, catagory, type, title }) => {
                 </Text>
                 <LinearGradient
                   colors={[
-                    theme.inputBackgroundColor,
-                    theme.primaryBackgroundColor,
+                    theme.linearGradientColorOne,
+                    theme.linearGradientColorTwo,
                   ]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -218,7 +217,7 @@ const Items = ({ data, catagory, type, title }) => {
                   <Text
                     style={[
                       styles.detailsButtonText,
-                      { color: theme.textColor },
+                      { color: theme.valueTextColor },
                     ]}
                   >
                     {type === "fertilizer"
@@ -235,8 +234,8 @@ const Items = ({ data, catagory, type, title }) => {
                 </Text>
                 <LinearGradient
                   colors={[
-                    theme.inputBackgroundColor,
-                    theme.primaryBackgroundColor,
+                    theme.linearGradientColorOne,
+                    theme.linearGradientColorTwo,
                   ]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -245,7 +244,7 @@ const Items = ({ data, catagory, type, title }) => {
                   <Text
                     style={[
                       styles.detailsButtonText,
-                      { color: theme.textColor },
+                      { color: theme.valueTextColor },
                     ]}
                   >
                     {type === "fertilizer"
@@ -263,8 +262,8 @@ const Items = ({ data, catagory, type, title }) => {
 
                     <LinearGradient
                       colors={[
-                        theme.inputBackgroundColor,
-                        theme.primaryBackgroundColor,
+                        theme.linearGradientColorOne,
+                        theme.linearGradientColorTwo,
                       ]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
@@ -273,7 +272,7 @@ const Items = ({ data, catagory, type, title }) => {
                       <Text
                         style={[
                           styles.detailsButtonText,
-                          { color: theme.textColor },
+                          { color: theme.valueTextColor },
                         ]}
                       >
                         {subItem.symptoms}
@@ -291,8 +290,8 @@ const Items = ({ data, catagory, type, title }) => {
 
                     <LinearGradient
                       colors={[
-                        theme.inputBackgroundColor,
-                        theme.primaryBackgroundColor,
+                        theme.linearGradientColorOne,
+                        theme.linearGradientColorTwo,
                       ]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
@@ -301,7 +300,7 @@ const Items = ({ data, catagory, type, title }) => {
                       <Text
                         style={[
                           styles.detailsButtonText,
-                          { color: theme.textColor },
+                          { color: theme.valueTextColor },
                         ]}
                       >
                         {subItem.solubility}
@@ -316,8 +315,8 @@ const Items = ({ data, catagory, type, title }) => {
 
                     <LinearGradient
                       colors={[
-                        theme.inputBackgroundColor,
-                        theme.primaryBackgroundColor,
+                        theme.linearGradientColorOne,
+                        theme.linearGradientColorTwo,
                       ]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
@@ -326,7 +325,7 @@ const Items = ({ data, catagory, type, title }) => {
                       <Text
                         style={[
                           styles.detailsButtonText,
-                          { color: theme.textColor },
+                          { color: theme.valueTextColor },
                         ]}
                       >
                         {subItem.productionTime}
@@ -343,8 +342,8 @@ const Items = ({ data, catagory, type, title }) => {
                 </Text>
                 <LinearGradient
                   colors={[
-                    theme.inputBackgroundColor,
-                    theme.primaryBackgroundColor,
+                    theme.linearGradientColorOne,
+                    theme.linearGradientColorTwo,
                   ]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -353,7 +352,7 @@ const Items = ({ data, catagory, type, title }) => {
                   <Text
                     style={[
                       styles.detailsButtonText,
-                      { color: theme.textColor },
+                      { color: theme.valueTextColor },
                     ]}
                   >
                     {type === "fertilizer"
@@ -370,8 +369,8 @@ const Items = ({ data, catagory, type, title }) => {
                 </Text>
                 <LinearGradient
                   colors={[
-                    theme.inputBackgroundColor,
-                    theme.primaryBackgroundColor,
+                    theme.linearGradientColorOne,
+                    theme.linearGradientColorTwo,
                   ]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -380,7 +379,7 @@ const Items = ({ data, catagory, type, title }) => {
                   <Text
                     style={[
                       styles.detailsButtonText,
-                      { color: theme.textColor },
+                      { color: theme.valueTextColor },
                     ]}
                   >
                     {type === "fertilizer"
@@ -401,7 +400,6 @@ const Items = ({ data, catagory, type, title }) => {
           styles.container,
           {
             backgroundColor: theme.secondaryBackgroundColor,
-            paddingTop: insets.top,
           },
         ]}
       >
@@ -450,6 +448,21 @@ const Items = ({ data, catagory, type, title }) => {
               .map((item, index) => (
                 <View style={styles.dataContainer} key={index}>
                   <Image source={{ uri: item.img }} style={styles.mainImage} />
+                  {user.isAdmin && (
+                  <TouchableOpacity
+                    style={[styles.deleteContainer]}
+                    onPress={() => {
+                      setShowModal(true);
+                    }}
+                  >
+                    <Image
+                      source={require("../assets/items/deleteIcon.png")}
+                      style={[
+                        styles.deleteIcon,
+                        { tintColor: theme.deleteIcon },
+                      ]}
+                    />
+                  </TouchableOpacity>)}
                   <View style={styles.overlay}>
                     <Image
                       source={require("../assets/items/wave_1.png")}
@@ -459,17 +472,21 @@ const Items = ({ data, catagory, type, title }) => {
                       source={require("../assets/items/wave_2.png")}
                       style={styles.wave2}
                     />
-                    <Text style={styles.title}>{item.name}</Text>
+                    <Text style={[styles.title, { color: theme.nameText }]}>
+                      {item.name}
+                    </Text>
                     <TouchableOpacity
                       style={styles.button}
                       onPress={() => setSelectedItem(item.name)}
                     >
-                      <Text style={styles.detailsText}>
+                      <Text
+                        style={[styles.detailsText, { color: theme.nameText }]}
+                      >
                         {translation("g.details")}
                       </Text>
                       <Image
                         source={require("../assets/items/arrow_en_white.png")}
-                        style={styles.arrowIcon}
+                        style={[styles.arrowIcon, { tintColor: theme.arrow }]}
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
@@ -477,6 +494,17 @@ const Items = ({ data, catagory, type, title }) => {
                 </View>
               ))}
           </View>
+          <ConfirmModal
+            visible={showModal}
+            message={translation("g.sure", {
+              Action: "delete this item",
+            })}
+            onCancel={() => setShowModal(false)}
+            onConfirm={() => {
+              setShowModal(false);
+              console.log("a");
+            }}
+          />
         </ScrollView>
       </SafeAreaView>
     );
@@ -487,7 +515,6 @@ const Items = ({ data, catagory, type, title }) => {
         styles.container,
         {
           backgroundColor: theme.secondaryBackgroundColor,
-          paddingTop: insets.top,
         },
       ]}
     >
@@ -527,6 +554,21 @@ const Items = ({ data, catagory, type, title }) => {
           {catagory.map((item, index) => (
             <View style={styles.dataContainer} key={index}>
               <Image source={images[item.img]} style={styles.mainImage} />
+                  {user.isAdmin && (
+                  <TouchableOpacity
+                    style={[styles.deleteContainer]}
+                    onPress={() => {
+                      setShowModal(true);
+                    }}
+                  >
+                    <Image
+                      source={require("../assets/items/deleteIcon.png")}
+                      style={[
+                        styles.deleteIcon,
+                        { tintColor: theme.deleteIcon },
+                      ]}
+                    />
+                  </TouchableOpacity>)}
               <View style={styles.overlay}>
                 <Image
                   source={require("../assets/items/wave_1.png")}
@@ -536,7 +578,7 @@ const Items = ({ data, catagory, type, title }) => {
                   source={require("../assets/items/wave_2.png")}
                   style={styles.wave2}
                 />
-                <Text style={styles.title}>
+                <Text style={[styles.title, { color: theme.nameText }]}>
                   {translation(`items.${item.catagory}`)}
                 </Text>
                 <TouchableOpacity
@@ -545,12 +587,12 @@ const Items = ({ data, catagory, type, title }) => {
                     setSelectedCategory(translation(`items.${item.catagory}`))
                   }
                 >
-                  <Text style={styles.detailsText}>
+                  <Text style={[styles.detailsText, { color: theme.nameText }]}>
                     {translation("g.details")}
                   </Text>
                   <Image
                     source={require("../assets/items/arrow_en_white.png")}
-                    style={styles.arrowIcon}
+                    style={[styles.arrowIcon, { tintColor: theme.arrow }]}
                     resizeMode="contain"
                   />
                 </TouchableOpacity>
@@ -558,6 +600,18 @@ const Items = ({ data, catagory, type, title }) => {
             </View>
           ))}
         </View>
+
+        <ConfirmModal
+          visible={showModal}
+          message={translation("g.sure", {
+            Action: "delete this",
+          })}
+          onCancel={() => setShowModal(false)}
+          onConfirm={() => {
+            setShowModal(false);
+            console.log("a");
+          }}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -585,7 +639,6 @@ const styles = StyleSheet.create({
   line: {
     width: width,
     height: 3,
-    // backgroundColor: "#DFF7E2",
   },
   imgContainer: {
     display: "flex",
@@ -599,29 +652,28 @@ const styles = StyleSheet.create({
     marginBottom: height * 0.1,
   },
   mainImage: {
-    width: width * 0.4, // 35% من عرض الشاشة
-    height: width * 0.45, // الحفاظ على نسبة العرض والطول متساوية
+    width: width * 0.4,
+    height: width * 0.45,
     borderRadius: 10,
   },
   overlay: {
     position: "absolute",
     bottom: -60,
-    width: "100%", // استخدم العرض الكامل للصورة
+    width: "100%",
   },
   wave1: {
     position: "absolute",
     bottom: 0,
     borderRadius: 10,
-    width: "100%", // نفس عرض الصورة
+    width: "100%",
   },
   wave2: {
     borderRadius: 10,
-    width: "100%", // نفس عرض الصورة
+    width: "100%",
   },
   title: {
     position: "absolute",
     fontFamily: Colors.primaryFontBold,
-    color: "white",
     textAlign: "center",
     top: 30,
     fontSize: width * 0.35 * 0.1,
@@ -642,7 +694,6 @@ const styles = StyleSheet.create({
     width: "100%",
     textAlign: "right",
     paddingRight: width * 0.1,
-    color: "white",
     fontFamily: Colors.primaryFontBold,
   },
   arrowIcon: {
@@ -651,7 +702,7 @@ const styles = StyleSheet.create({
     bottom: -4,
   },
   detailsNameContainer: {
-    justifyContent: 'center'
+    justifyContent: "center",
   },
   detailsName: {
     color: Colors.primaryColor,
@@ -686,5 +737,14 @@ const styles = StyleSheet.create({
   detailsButtonText: {
     fontSize: width * 0.07,
     fontFamily: Colors.primaryFont,
-  }, 
+  },
+  deleteContainer: {
+    position: "absolute",
+    top: 10,
+    right: 5,
+  },
+  deleteIcon: {
+    width: 25,
+    height: 25,
+  },
 });

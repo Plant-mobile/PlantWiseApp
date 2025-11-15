@@ -34,6 +34,11 @@
     "tip_eight": "The challenge is huge, but precise care is the answer. Diagnose, treat, and thrive",
     "loading": "Loading...",
     "server_error": "Server error, please try again later",
+    "wait": "Please wait \nwhile we process your request.Your screen will be ready momentarily.",
+    "please_wait": "Please Wait",
+    "sure": "Are you sure to {{Action}}?",
+    "yes": "Yes",
+    "no": "No",
     "": ""
   },
   "login": {

@@ -5,3 +5,7 @@ export type JWTPayloadType={
 export type AccessTokenType ={
     accessToken:string;
 }
+export type LoginData ={
+    accessToken:string;
+    user
+}

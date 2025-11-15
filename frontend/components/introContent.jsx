@@ -41,7 +41,7 @@ const IntroContent = ({
       ]}
     >
       <View style={[styles.header]}>
-        <Text style={[styles.title, { fontSize: titleSize }]}>{title}</Text>
+        <Text style={[styles.title, { fontSize: titleSize, color: theme.headerTextColor }]}>{title}</Text>
       </View>
 
       <View
@@ -54,14 +54,14 @@ const IntroContent = ({
           <View
             style={[
               styles.circle,
-              { backgroundColor: theme.cricleBackgroundColor },
+              { backgroundColor: theme.cricleBackgroundColor, borderColor: theme.bordercricleColor },
             ]}
           >
             <Image source={images[img]} style={styles.image} />
           </View>
         )}
 
-        {secondTitle && <Text style={styles.secondTitle}>{secondTitle}</Text>}
+        {secondTitle && <Text style={[styles.secondTitle, {color: theme.headerTextColor}]}>{secondTitle}</Text>}
 
         <Spacer height={20} />
 
@@ -69,11 +69,11 @@ const IntroContent = ({
   style={[
     styles.description,
     {
-      color: Colors.primaryColor,
+      color: theme.textColor,
       fontSize: textSize,
       textAlign: isTextLeft
-        ? (isAppRTL ? 'right' : 'left') // لو لازم يكون بمحاذاة حسب اللغة
-        : 'center', // غير هيك يكون بالنص
+        ? (isAppRTL ? 'right' : 'left') 
+        : 'center', 
     },
   ]}
 >
@@ -107,13 +107,11 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
   title: {
-    color: "white",
     textAlign: "center",
     fontFamily: Colors.primaryFontBold,
   },
   secondTitle: {
     fontSize: 28,
-    color: Colors.primaryColor,
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 20,
@@ -134,5 +132,6 @@ const styles = StyleSheet.create({
     borderRadius: (width * 0.5) / 2,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 4
   },
 });

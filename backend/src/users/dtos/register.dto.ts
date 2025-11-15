@@ -13,8 +13,4 @@ export class RegisterDto{
     @IsString()
     @Length(2,150)
     username:string;
-    @IsString()
-    @MinLength(6)
-    @IsNotEmpty()
-    passwordAgain:string;
 }

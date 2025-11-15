@@ -1,14 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException, Res } from "@nestjs/common";
+import { BadRequestException, Delete, Injectable, NotFoundException, Res } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { RegisterDto } from "./dtos/register.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
-import { JWTPayloadType, AccessTokenType } from "../utils/types";
+import { JWTPayloadType, AccessTokenType, LoginData } from "../utils/types";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcryptjs';
-import { randomBytes } from 'crypto';
+// import { randomBytes } from 'crypto';
+import crypto from "crypto";
 // import * as nodemailer from 'nodemailer';
 
 @Injectable()
@@ -16,15 +17,15 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
-/**
- *create new user
- * @param registerDto data for create new user
- * @returns JWT (access token)
- */
+  ) { }
+  /**
+   *create new user
+   * @param registerDto data for create new user
+   * @returns JWT (access token)
+   */
   public async register(registerDto: RegisterDto): Promise<AccessTokenType> {
-    const { email, password, username, passwordAgain } = registerDto;
-    if (password !== passwordAgain) throw new BadRequestException("Passwords do not match");
+    const { email, password, username } = registerDto;
+
 
     const userFromDb = await this.usersRepository.findOne({ where: { email } });
     if (userFromDb) throw new BadRequestException("User already exists");
@@ -32,11 +33,13 @@ export class UsersService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const refreshToken = this.generateRefreshToken();
+
     let newUser = this.usersRepository.create({
       email,
       username,
       password: hashedPassword,
-      recovery_token: null,
+      recovery_token: refreshToken,
       recovery_sent_at: null,
     });
     newUser = await this.usersRepository.save(newUser);
@@ -44,28 +47,30 @@ export class UsersService {
     const accessToken = await this.generateJWT({ id: newUser.id, email: newUser.email });
     return { accessToken };
   }
-/**
- * log in user
- * @param loginDto data for log in to user account
- * @returns JWT (access toke)
- */
-  public async login(loginDto: LoginDto): Promise<AccessTokenType> {
+  /**
+   * log in user
+   * @param loginDto data for log in to user account
+   * @returns JWT (access toke) and user info
+   */
+  public async login(loginDto: LoginDto): Promise<any> {
     const { email, password } = loginDto;
     const user = await this.usersRepository.findOne({ where: { email } });
-    if (!user) throw new BadRequestException("Invalid email or password");
+    if (!user) return { success: false, message: " Invalid email or password "};
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatch) throw new BadRequestException("Invalid email or password");
+    if (!isPasswordMatch) return { success: false, message: " Invalid email or password "};
 
     const accessToken = await this.generateJWT({ id: user.id, email: user.email });
-    return { accessToken };
+
+    const { password: _, ...safeUser } = user;
+    return { success: true, accessToken, user: safeUser };
   }
- /**
-     * update user 
-     * @param id id of logged in user
-     * @param updateUserDto data for updating the user
-     * @returns updated user from the database
-     */
+  /**
+      * update user 
+      * @param id id of logged in user
+      * @param updateUserDto data for updating the user
+      * @returns updated user from the database
+      */
   public async update(id: number, updateUserDto: UpdateUserDto) {
     const { currentPassword, username, email, newPassword, confirmNewPassword } = updateUserDto;
     const user = await this.usersRepository.findOne({ where: { id } });
@@ -85,29 +90,33 @@ export class UsersService {
 
     return this.usersRepository.save(user!);
   }
- /**
-     * Get current user (logged in user)
-     * @param id  id of the logged in user
-     * @returns the user from the database
-     */
+  /**
+      * Get current user (logged in user)
+      * @param id  id of the logged in user
+      * @returns the user from the database
+      */
   public async getCurrentUser(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) throw new NotFoundException("User not found");
     return user;
   }
 
- 
+
   public getAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
- /**
-     * generate Json web Token 
-     * @param payload JWT payload
-     * @returns token
-     */
+  /**
+      * generate Json web Token 
+      * @param payload JWT payload
+      * @returns token
+      */
   private generateJWT(payload: JWTPayloadType): Promise<string> {
     return this.jwtService.signAsync(payload);
   }
+
+  private generateRefreshToken() {
+  return crypto.randomBytes(40).toString("hex");
+}
 
 
   // public async forgotPassword(email: string): Promise<void> {
@@ -119,7 +128,7 @@ export class UsersService {
   //   // user.recovery_sent_at = new Date();
   //   // await this.usersRepository.save(user);
   //   const randomNumber = Math.floor(1000 + Math.random() * 9000);
-  
+
   //   const transporter = nodemailer.createTransport({
   //     host: "smtp.gmail.com", 
   //     port: 465,
@@ -139,21 +148,21 @@ export class UsersService {
   //     html: `
   //       <p>Hello ${user.username},</p>
   //       <p>Click The code to reset your password is ${randomNumber}</p>
-        
+
   //     `,
   //   });
-    
+
   //   console.log(`Reset password email sent to ${user.email}`);
   // }
 
-  
+
   public async resetPasswordByToken(token: string, newPassword: string): Promise<void> {
     const user = await this.usersRepository.findOne({ where: { recovery_token: token } });
     if (!user) throw new BadRequestException('Invalid or expired token');
 
     const sentAt = new Date(user.recovery_sent_at!).getTime();
     const now = Date.now();
-    const MAX_AGE = 1000 * 60 * 60; 
+    const MAX_AGE = 1000 * 60 * 60;
 
     if (now - sentAt > MAX_AGE) {
       user.recovery_token = null;

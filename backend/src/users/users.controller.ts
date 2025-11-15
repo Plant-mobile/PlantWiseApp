@@ -16,7 +16,7 @@ export class UsersController{
     constructor(
         private readonly usersService:UsersService
     ){}
-    // http://localhost:5000/api/users/auth/v1/register
+    // http://localhost:5000/api/users/auth/register
     @Post("auth/register")
    public register(@Body() body:RegisterDto){
     return this.usersService.register(body)
@@ -25,7 +25,6 @@ export class UsersController{
    @Post("auth/login")
    @HttpCode(HttpStatus.OK)
    public login(@Body() body: LoginDto){
-   
       return this.usersService.login(body)
    }
    // http://localhost:5000/api/users/current-user
