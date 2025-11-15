@@ -4,15 +4,15 @@ import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { CURRENT_USER_KEY } from "src/utils/constants";
 import { Reflector } from "@nestjs/core";
-import { UsersService } from "../users.service";
-
+//import { UsersService } from "../users.service";
+import { AuthService } from '../users.service';
 @Injectable()
 export class AuthRolesGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly reflector: Reflector,
-    private readonly userService: UsersService
+    private readonly userService: AuthService
   ) {}
 
   async canActivate(context: ExecutionContext) {

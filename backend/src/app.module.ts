@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 
 import { UsersModule } from './users/users.module';
-import { ReviewsModule } from './reviews/reviews.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ItemsModule } from './items/items.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Fertilizer } from "./items/Fertilizers.entity";
 import { User } from './users/user.entity';
-import { Review } from './reviews/review.entity';
 import { config } from 'node:process';
 import { Plant } from './items/Plant.entity';
 
 
 @Module({
-  imports: [UsersModule, ReviewsModule, ItemsModule,
+  imports: [UsersModule, ItemsModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -26,7 +24,7 @@ import { Plant } from './items/Plant.entity';
           database: 'postgres',
           ssl: { rejectUnauthorized: false },
           synchronize: process.env.NODE_ENV !== "production"
-          , entities: [User, Review, Fertilizer, Plant],
+          , entities: [User,  Fertilizer, Plant],
           extra: {
             max: 200,
           },
