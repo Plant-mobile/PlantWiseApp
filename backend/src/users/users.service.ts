@@ -180,57 +180,136 @@
 //   // }
 // }
 // auth.service.ts
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Delete, Injectable, NotFoundException, Res, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User, UserDocument } from './users.schema';
-import { RefreshToken, RefreshTokenDocument } from './refresh-token.schema';
+import { RegisterDto } from "./dtos/register.dto";
+import { JWTPayloadType, AccessTokenType, LoginData, RegisterData } from "../utils/types";
+import crypto from "crypto";
+
+// import { Model } from 'mongoose';
+import { User } from './user.entity';
+import { RefreshToken } from './refresh_token.entity';
+// import { RefreshToken, RefreshTokenDocument } from './refresh-token.schema';
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { retry } from 'rxjs';
 
 @Injectable()
-export class AuthService {
+export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(RefreshToken.name) private refreshModel: Model<RefreshTokenDocument>,
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(RefreshToken) private readonly refreshTokenRpository: Repository<RefreshToken>,
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string) {
-    const hashed = bcrypt.hashSync(password, 10);
-    const user = await this.userModel.create({ email, password: hashed });
-    return { id: user._id, email: user.email };
-  }
+   public async register(registerDto: RegisterDto): Promise<RegisterData> {
+      const { email, password, username } = registerDto;
 
-  async login(email: string, password: string) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new Error('Wrong email or password');
-    const valid = bcrypt.compareSync(password, user.password);
-    if (!valid) throw new Error('Wrong email or password');
 
-    const accessToken = this.jwtService.sign({ id: user._id }, { expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign({ id: user._id }, { expiresIn: '7d' });
+      const userFromDb = await this.usersRepository.findOne({ where: { email } });
+      if (userFromDb) throw new BadRequestException("User already exists");
 
-    await this.refreshModel.create({
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+
+      let newUser = this.usersRepository.create({
+        email,
+        username,
+        password: hashedPassword,
+      });
+      newUser = await this.usersRepository.save(newUser);
+
+      const refreshToken = this.generateRefreshToken();
+
+    const refreshToken_db = await this.refreshTokenRpository.create({
       token: refreshToken,
-      userId: user._id,
+      user: newUser,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     });
 
-    return { user: { id: user._id, email: user.email }, accessToken, refreshToken };
+    await this.refreshTokenRpository.save(refreshToken_db);
+
+      const accessToken = await this.generateJWT({ id: newUser.id, email: newUser.email });
+      return { user: { id: newUser.id, email: newUser.email }, accessToken, refreshToken };
+    }
+
+  async login(email: string, password: string): Promise<LoginData> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) throw new UnauthorizedException('Wrong email or password');
+    const valid = bcrypt.compareSync(password, user.password);
+    if (!valid) throw new UnauthorizedException('Wrong email or password');
+
+    const accessToken = await this.generateJWT({ id: user.id, email: user.email });
+    const refreshToken = this.generateRefreshToken();
+
+    const refreshToken_db = await this.refreshTokenRpository.create({
+      token: refreshToken,
+      user: user,
+      expiresAt: new Date(Date.now() + 1 * 60 * 1000)
+    });
+
+    await this.refreshTokenRpository.save(refreshToken_db);
+
+    const { password: _, ...safeUser } = user;
+
+    return { user: safeUser, accessToken, refreshToken };
+
   }
 
   async logout(refreshToken: string) {
-    await this.refreshModel.deleteOne({ token: refreshToken });
+    await this.refreshTokenRpository.delete({ token: refreshToken } );
     return { message: 'Logged out successfully' };
   }
 
   async refresh(refreshToken: string) {
-    const dbToken = await this.refreshModel.findOne({ token: refreshToken });
-    if (!dbToken) throw new Error('Invalid refresh token');
+    const dbToken = await this.refreshTokenRpository.findOne({
+        where: { token: refreshToken },
+        relations: ['user']
+    });
 
-    const payload = this.jwtService.verify(refreshToken);
-    const newAccess = this.jwtService.sign({ id: payload.id }, { expiresIn: '15m' });
-    return { accessToken: newAccess };
+    if (!dbToken) {
+        throw new UnauthorizedException({
+            error: "INVALID_REFRESH_TOKEN",
+            message: "Invalid refresh token"
+        });
+    }
+
+    if (dbToken.expiresAt < new Date()) {
+
+        await this.refreshTokenRpository.delete({ token: refreshToken });
+
+        throw new UnauthorizedException({
+            error: "REFRESH_TOKEN_EXPIRED",
+            message: "Refresh token expired, please login again"
+        });
+    }
+
+    const newAccessToken = this.jwtService.sign(
+        { id: dbToken.user.id, email: dbToken.user.email },
+        { expiresIn: "1m" }
+    );
+
+    return {
+        accessToken: newAccessToken,
+        refreshToken: dbToken.token
+    };
+}
+
+
+
+
+public async getCurrentUser(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException("User not found");
+    return user;
   }
+    private generateJWT(payload: JWTPayloadType): Promise<string> {
+    return this.jwtService.signAsync(payload);
+  }
+
+    private generateRefreshToken() {
+  return crypto.randomBytes(40).toString("hex");
+}
 }

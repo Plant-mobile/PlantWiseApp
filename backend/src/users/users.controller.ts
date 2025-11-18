@@ -31,9 +31,9 @@
 //    @Get("current-user")
 //    @UseGuards(AuthGuard)
 //    public getCurrentUser(@CurrentUser() payload: JWTPayloadType){
-    
+
 //     return this.usersService.getCurrentUser(payload.id);
-    
+
 //    }
 //    // http://localhost:5000/api/users
 //    @Put()
@@ -41,9 +41,9 @@
 //    public updateUser(@CurrentUser() payload:JWTPayloadType,@Body() body:UpdateUserDto ){
 //     return this.usersService.update(payload.id, body);
 //    }
-  
 
-   
+
+
 // //   @Post('forgot-password')
 // // async forgotPassword(@Body() dto: ForgotPasswordDto) {
 // //   await this.usersService.forgotPassword(dto.email);
@@ -58,39 +58,38 @@
 
 // }
 // auth.controller.ts
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { AuthService } from './users.service';
-import type { Request } from 'express';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { Body, Controller, Get, Post, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import { UsersService } from "./users.service";
+import { RegisterDto } from "./dtos/register.dto";
+import { AuthRolesGuard } from '../guards/auth-roles.guard';
 
-@Controller('auth')
+@Controller("api/users")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private usersService: UsersService,
+    
+  ) { }
 
-  @Post('register')
-  async register(@Body() body: { email: string; password: string }) {
-    return this.authService.register(body.email, body.password);
+
+  @Post("auth/register")
+  public register(@Body() body: RegisterDto) {
+    return this.usersService.register(body)
   }
 
-  @Post('login')
+  @Post('auth/login')
   async login(@Body() body: { email: string; password: string }) {
-    return this.authService.login(body.email, body.password);
+    return this.usersService.login(body.email, body.password);
   }
 
-  @Post('logout')
-  async logout(@Body() body: { refreshToken: string }) {
-    return this.authService.logout(body.refreshToken);
+  @Post('auth/logout')
+  @UseGuards(AuthRolesGuard) 
+  // @SetMetadata('isAdmin', true)
+ async logout(@Body() body: { refreshToken: string }) {
+     return this.usersService.logout(body.refreshToken);
   }
 
-  @Post('refresh')
+  @UseGuards(AuthRolesGuard) 
+  @Post('auth/refresh')
   async refresh(@Body() body: { refreshToken: string }) {
-    return this.authService.refresh(body.refreshToken);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('welcome')
-  async welcome(@Req() req: Request) {
-    return { message: `مرحبا ${req.user['id']}!` };
-
+    return this.usersService.refresh(body.refreshToken);
   }
 }

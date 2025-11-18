@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,8 @@ import {
 } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingProgressBar from "../../components/LoadingProgressBar";
+import { UserContext } from "../../services/auth/auth";
+import LoginScreen from "../(auth)/login";
 const { width, height } = Dimensions.get("window");
 const FERTILIZERS_KEY = "fertilizers_cache";
 const UPDATED_KEY = "fertilizers_last_updated";
@@ -29,6 +31,7 @@ export default function ProductList() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const insets = useSafeAreaInsets();
+  const { refreshToken, token, logout } = useContext(UserContext);
 
   const [progress, setProgress] = useState(0);
 
@@ -51,28 +54,56 @@ export default function ProductList() {
       try {
         const cached = await AsyncStorage.getItem(FERTILIZERS_KEY);
         const lastUpdated = await AsyncStorage.getItem(UPDATED_KEY);
+
         if (cached) {
           setFertilizers(JSON.parse(cached));
           setLoading(false);
         }
+
         const res = await fetch(
-          `http://192.168.1.871:5000/items/fertilizers${
+          `http://192.168.1.121:5000/items/fertilizers${
             lastUpdated ? `?since=${lastUpdated}` : ""
           }`,
           {
             method: "GET",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              "x-refresh-token": refreshToken,
+            },
             signal: controller.signal,
           }
         );
 
         clearTimeout(timeout);
 
+        // ------------- حالة خطأ في الاستجابة من السيرفر -------------
         if (!res.ok) {
-          throw new Error("استجابة غير صالحة من السيرفر");
-        }
-        const json = await res.json();
+          let errorData = null;
 
+          try {
+            errorData = await res.json();
+          } catch (_) {}
+
+          // حالة LOGOUT_REQUIRED
+          if (errorData?.error === "LOGOUT_REQUIRED") {
+            await logout();
+            router.replace("/(auth)/login");
+            return;
+          }
+
+          // أي خطأ من السيرفر مثل 500 / 502
+          setError("SERVER_ERROR");
+          return;
+        }
+
+        // ------------ تحديث التوكن ------------
+        const newAccessToken = res.headers.get("x-access-token");
+        if (newAccessToken) {
+          await AsyncStorage.setItem("token", newAccessToken);
+        }
+
+        const json = await res.json();
         const current = JSON.parse(cached || "[]");
 
         const newFertilizers = mergeFertilizers(current, json.fertilizers);
@@ -85,10 +116,16 @@ export default function ProductList() {
 
         setFertilizers(newFertilizers);
       } catch (err) {
-        const cached = await AsyncStorage.getItem(FERTILIZERS_KEY);
-        if (!cached) {
-          setError(translation("g.server_error"));
+        console.log("ERROR →", err);
+
+        // ----------- Timeout -----------
+        if (err.name === "AbortError") {
+          setError("TIMEOUT");
+          return;
         }
+
+        // ----------- Network/server down (No response) ----------
+        setError("SERVER_ERROR");
       } finally {
         setLoading(false);
       }
@@ -116,6 +153,7 @@ export default function ProductList() {
   const handleBack = () => {
     router.replace("/main");
   };
+  console.log(error);
   if (loading) {
     return (
       <View
@@ -124,7 +162,7 @@ export default function ProductList() {
           { backgroundColor: theme.secondaryBackgroundColor },
         ]}
       >
-        <View style={{width: '100%', marginLeft: width * 0.34}}>
+        <View style={{ width: "100%", marginLeft: width * 0.34 }}>
           <Image
             source={require("../../assets/items/loading/loading_man.png")}
           />
@@ -135,14 +173,13 @@ export default function ProductList() {
         <View style={{ width: "100%", height: 100 }}>
           <LoadingProgressBar progress={progress} />
         </View>
-         <Text style={[styles.loadDetails, { color: theme.primaryColor }]}>
+        <Text style={[styles.loadDetails, { color: theme.primaryColor }]}>
           {translation("g.wait")}
-         </Text>
+        </Text>
       </View>
     );
   }
-
-  if (error) {
+  if (error ) {
     return (
       <SafeAreaView
         style={[
@@ -156,31 +193,30 @@ export default function ProductList() {
       >
         <TouchableOpacity
           onPress={handleBack}
-          style={{
-            alignSelf: "flex-start",
-          }}
+          style={{ alignSelf: "flex-start" }}
         >
           <Text style={[styles.back]}>
             <Image source={require("../../assets/items/arrow_en.png")} />
             {translation("g.home")}
           </Text>
         </TouchableOpacity>
+
         <View
           style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
-        ></View>
+        />
+
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Image
-            source={require("../../assets/items/error/504.png")}
-            // style={styles.detailsImage}
-            resizeMode="cover"
-          />
+          {error === "TIMEOUT" ? (
+            <Image source={require("../../assets/items/error/504.png")} />
+          ) : (
+            <Image source={require("../../assets/items/error/502.png")} />
+          )}
         </View>
       </SafeAreaView>
     );
   }
-
   return (
     <View style={{ flex: 1 }}>
       <Items
@@ -227,7 +263,7 @@ const styles = StyleSheet.create({
   loadDetails: {
     fontSize: width * 0.04,
     fontFamily: Colors.primaryFontBold,
-    textAlign: 'center',
-    width :300
+    textAlign: "center",
+    width: 300,
   },
 });

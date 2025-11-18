@@ -8,10 +8,25 @@ import { Fertilizer } from "./items/Fertilizers.entity";
 import { User } from './users/user.entity';
 import { config } from 'node:process';
 import { Plant } from './items/Plant.entity';
+import { RefreshToken } from './users/refresh_token.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
   imports: [UsersModule, ItemsModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          global: true,
+          secret: 'aaa', //config.get<string>("JWT_SECRET"),
+          signOptions: {
+
+            expiresIn: '15m',
+          },
+        };
+      }
+    }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -24,7 +39,7 @@ import { Plant } from './items/Plant.entity';
           database: 'postgres',
           ssl: { rejectUnauthorized: false },
           synchronize: process.env.NODE_ENV !== "production"
-          , entities: [User,  Fertilizer, Plant],
+          , entities: [User, Fertilizer, Plant, RefreshToken],
           extra: {
             max: 200,
           },

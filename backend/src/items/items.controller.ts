@@ -16,7 +16,7 @@ import { extname } from 'path';
 import * as fs from 'fs';
 import { ItemsService } from './items.service';
 import { User } from 'src/users/user.entity';
-import { AuthRolesGuard } from '../users/guards/auth-roles.guard';
+import { AuthRolesGuard } from '../guards/auth-roles.guard';
 import { Roles } from '../users/decorators/user-role.decorator';
 
 @Controller('items')
@@ -57,7 +57,8 @@ export class ItemsController {
         throw new BadRequestException('نوع العنصر غير معروف');
     }
   }
-
+    
+@UseGuards(AuthRolesGuard) 
   @Get('plants')
   async getPlants(@Query('since') since?: string) {
     const lastUpdated = since ? new Date(since) : null;
@@ -73,6 +74,7 @@ export class ItemsController {
     };
   }
 
+  @UseGuards(AuthRolesGuard) 
   @Get('fertilizers')
   async getFertilizers(@Query('since') since?: string) {
     const lastUpdated = since ? new Date(since) : null;
@@ -83,7 +85,6 @@ export class ItemsController {
       : await this.itemsService.findAllFertilizers();
 
     const latest = await this.itemsService.findLatestUpdateTime('fertilizers');
-    console.log(fertilizers);
     return {
       fertilizers,
       last_updated: latest,

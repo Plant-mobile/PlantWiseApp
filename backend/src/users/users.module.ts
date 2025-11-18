@@ -6,25 +6,26 @@ import { User } from "./user.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import {AuthController} from "./users.controller";
-import {AuthService} from "./users.service";
+import {UsersService} from "./users.service";
+import { RefreshToken } from "./refresh_token.entity";
 @Module({controllers:[AuthController],
-    providers:[AuthService],
+    providers:[UsersService],
    
-    imports:[TypeOrmModule.forFeature([User]),
+    imports:[TypeOrmModule.forFeature([User, RefreshToken]),
     JwtModule.registerAsync({
         inject:[ConfigService],
         useFactory:(config:ConfigService) =>{
             return {
                 global:true,
-                secret:config.get<string>("JWT_SECRET"),
+                secret:'aaa', //config.get<string>("JWT_SECRET"),
                 signOptions: {
          
-          expiresIn: config.get('JWT_EXPIRES_IN') as `${number}${'ms' | 's' | 'm' | 'h' | 'd'}`,
+          expiresIn: '1m',
         },
             };
         }
     })
 ],
- exports: [AuthService, JwtModule],
+ exports: [UsersService, JwtModule],
 })
 export class UsersModule{}

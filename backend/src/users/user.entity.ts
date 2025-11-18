@@ -1,8 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn,  OneToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn,  OneToOne, OneToMany } from "typeorm";
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { Fertilizer } from "../items/Fertilizers.entity"
 
-import { RefreshToken } from "../users/refresh_token.entity"; // عدّل المسار حسب مشروعك
+import { RefreshToken } from "./refresh_token.entity"; // عدّل المسار حسب مشروعك
 
 // src/users/user.entity.ts
 
@@ -18,8 +18,8 @@ export class User {
    password: string;
    @Column({ type: "boolean", default: false })
    isAdmin: boolean;
-  @OneToOne(() => RefreshToken, token => token.user)
-  refreshToken: RefreshToken;
+@OneToMany(() => RefreshToken, token => token.user)
+refreshToken: RefreshToken;
    //  @Column({ type: 'varchar', nullable: true })
    //  recovery_token: string | null;
 

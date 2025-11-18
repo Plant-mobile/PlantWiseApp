@@ -1,16 +1,19 @@
-import { UserContext } from '../services/auth/auth';
-import { useContext, useEffect, useState } from 'react';
-import { useRouter, useRootNavigationState } from 'expo-router';
-import { View, ActivityIndicator, } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import StartPhoto from '../components/startPhoto'
+import { UserContext } from "../services/auth/auth";
+import { useContext, useEffect, useState } from "react";
+import { useRouter, useRootNavigationState } from "expo-router";
+import { View, ActivityIndicator, useColorScheme } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import StartPhoto from "../components/startPhoto";
+import { Colors } from "../constants/Colors";
 
 export default function Index() {
+  const ColorScheme = useColorScheme();
+  const theme = Colors[ColorScheme] ?? Colors.light;
   const userCtx = useContext(UserContext);
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();
   const [isReady, setIsReady] = useState(false);
-  const [showSplash, setShowSplash] = useState(true); 
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     if (rootNavigationState?.key && userCtx) {
@@ -22,19 +25,19 @@ export default function Index() {
     if (!isReady) return;
 
     const loadingPage = async () => {
-      
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      setShowSplash(false); 
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      setShowSplash(false);
 
-      const hasSeenIntro = await AsyncStorage.getItem('hasSeenIntro');
+      const hasSeenIntro = await AsyncStorage.getItem("hasSeenIntro");
 
       if (!hasSeenIntro) {
-        router.replace('/(intro)/intro');
+        router.replace("/(intro)/intro");
       } else {
-        if (userCtx.user) {
-          router.replace('/(dashboard)/main');
+        console.log(userCtx);
+        if (userCtx.user && userCtx.token && userCtx.refreshToken) {
+          router.replace("/(dashboard)/main");
         } else {
-          router.replace('/(auth)/login');
+          router.replace("/(auth)/login");
         }
       }
     };
@@ -43,17 +46,19 @@ export default function Index() {
   }, [isReady, userCtx?.user]);
 
   if (showSplash) {
-    
-    return (
-      <StartPhoto />
-    );
+    return <StartPhoto />;
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: theme.primaryBackgroundColor,
+      }}
+    >
       <ActivityIndicator size="large" />
     </View>
   );
 }
-
-
