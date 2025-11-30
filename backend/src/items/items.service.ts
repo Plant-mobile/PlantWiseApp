@@ -9,6 +9,7 @@ import { AddPlantsDto } from "./dtos/add-Plants.dto";
 
 @Injectable()
 export class ItemsService {
+   private repoMap;
   constructor(
     @InjectRepository(Fertilizer)
     private readonly fertilizersRepo: Repository<Fertilizer>,
@@ -18,7 +19,17 @@ export class ItemsService {
 
     @InjectRepository(User)
     private readonly usersRepo: Repository<User>,
-  ) { }
+    
+
+  ) { this.repoMap = {
+      fertilizer: this.fertilizersRepo,
+      plant: this.plantsRepo,
+    };}
+    private getRepo(type: 'fertilizer' | 'plant') {
+    const repo = this.repoMap[type];
+    if (!repo) throw new BadRequestException('Invalid type');
+    return repo;
+  }
 
 
   async addFertilizer(dto: AddFertilizersDto, admin: User) {
@@ -67,29 +78,83 @@ export class ItemsService {
     return latest[0]?.updatedAt ?? new Date();
   }
 
-  async isDelete(ids: number[]): Promise<any> {
-    return await this.fertilizersRepo.update(
-      { id: In(ids) },
-      { isDeleted: true },
-    );
-  }
+  
+  async isDelete(
+  ids: number[],
+  type: 'fertilizer' | 'plant'
+): Promise<any> {
+  let repo;
 
-  async unDelete(ids: number[]): Promise<any> {
-        return await this.fertilizersRepo.update(
-      { id: In(ids) },
-      { isDeleted: false },
-    );
-  }
+  if (type === 'fertilizer') {
+    repo = this.fertilizersRepo;
+  } else if (type === 'plant') {
+    repo = this.plantsRepo;
+  } 
 
+  return await repo.update(
+    { id: In(ids) },
+    { isDeleted: true },
+  );
+}
+async unDelete(
+  ids: number[],
+  type: 'fertilizer' | 'plant'
+): Promise<any> {
+  let repo;
 
-  async findAllFertilizersIsDelete(): Promise<Fertilizer[]> {
-    return this.fertilizersRepo.find({
+  if (type === 'fertilizer') {
+    repo = this.fertilizersRepo;
+  } else if (type === 'plant') {
+    repo = this.plantsRepo;
+  } 
+
+  return await repo.update(
+    { id: In(ids) },
+    { isDeleted: false },
+  );
+}
+async isSave(
+  ids: number[],
+  type: 'fertilizer' | 'plant'
+): Promise<any> {
+  let repo;
+
+  if (type === 'fertilizer') {
+    repo = this.fertilizersRepo;
+  } else if (type === 'plant') {
+    repo = this.plantsRepo;
+  } 
+
+  return await repo.update(
+    { id: In(ids) },
+    { isSave: true },
+  );
+}
+async unSave(
+  ids: number[],
+  type: 'fertilizer' | 'plant'
+): Promise<any> {
+  let repo;
+
+  if (type === 'fertilizer') {
+    repo = this.fertilizersRepo;
+  } else if (type === 'plant') {
+    repo = this.plantsRepo;
+  } 
+
+  return await repo.update(
+    { id: In(ids) },
+    { isSave: false },
+  );
+}
+async findAllIsDelete(type: 'fertilizer' | 'plant') {
+    return this.getRepo(type).find({
       where: { isDeleted: true },
       order: { id: 'ASC' },
     });
   }
-  async findUpdatedFertilizersAfterIsDelete(date: Date): Promise<Fertilizer[]> {
-    return this.fertilizersRepo.find({
+async findUpdatedAfterIsDelete(type: 'fertilizer' | 'plant', date: Date) {
+    return this.getRepo(type).find({
       where: {
         updatedAt: MoreThan(date),
         isDeleted: false,
@@ -97,6 +162,7 @@ export class ItemsService {
       order: { id: 'ASC' },
     });
   }
+
 
 }
 
