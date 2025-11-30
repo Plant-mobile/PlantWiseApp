@@ -9,7 +9,8 @@ import {
   UseGuards,
   Get,
   Query,
-  Patch, // 👈 نضيف هذا
+  Patch,
+  SetMetadata, // 👈 نضيف هذا
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
@@ -23,7 +24,7 @@ import { Roles } from '../users/decorators/user-role.decorator';
 @Controller('api/items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService,
-   
+
   ) { }
 
   @Post('upload')
@@ -60,8 +61,8 @@ export class ItemsController {
         throw new BadRequestException('نوع العنصر غير معروف');
     }
   }
-    
-@UseGuards(AuthRolesGuard) 
+
+  @UseGuards(AuthRolesGuard)
   @Get('plants')
   async getPlants(@Query('since') since?: string) {
     const lastUpdated = since ? new Date(since) : null;
@@ -77,7 +78,7 @@ export class ItemsController {
     };
   }
 
-  @UseGuards(AuthRolesGuard) 
+  @UseGuards(AuthRolesGuard)
   @Get('fertilizers')
   async getFertilizers(@Query('since') since?: string) {
     const lastUpdated = since ? new Date(since) : null;
@@ -93,22 +94,34 @@ export class ItemsController {
       last_updated: latest,
     };
   }
-   @Patch('is-delete')
+
+  @UseGuards(AuthRolesGuard)
+  @SetMetadata('isAdmin', true)
+  @Patch('delete')
   async istDelete(
-    @Body('ids') ids: number[]   // تستقبل array من id
+    @Body('ids') ids: number[]
   ) {
-    return this.itemsService.isDelete(ids);
+    if (ids) {
+      return this.itemsService.isDelete(ids);
+    }
+    return false;
   }
-   @Patch('un-delete')
+
+  @UseGuards(AuthRolesGuard)
+  @SetMetadata('isAdmin', true)
+  @Patch('unDelete')
   async unDelete(
-    @Body('ids') ids: number[]   // تستقبل array من id
+    @Body('ids') ids: number[]
   ) {
-    return this.itemsService.unDelete(ids);
+    if (ids) {
+      return this.itemsService.unDelete(ids);
+    }
+    return false;
   }
 
 
-  
-  @UseGuards(AuthRolesGuard) 
+
+  @UseGuards(AuthRolesGuard)
   @Get('fertilizers')
   async getFertilizersIsDelete(@Query('since') since?: string) {
     const lastUpdated = since ? new Date(since) : null;

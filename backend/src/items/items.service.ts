@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { Fertilizer } from './Fertilizers.entity';
 import { Plant } from "./Plant.entity";
 import { User } from 'src/users/user.entity';
@@ -66,33 +66,37 @@ export class ItemsService {
       });
     return latest[0]?.updatedAt ?? new Date();
   }
-  // ids[] = [1,2,5]
+
   async isDelete(ids: number[]): Promise<any> {
-    return await this.fertilizersRepo.update(ids, { isDeleted: true });
+    return await this.fertilizersRepo.update(
+      { id: In(ids) },
+      { isDeleted: true },
+    );
   }
-  
 
-  // ids[] = [1,2,5]
   async unDelete(ids: number[]): Promise<any> {
-    return await this.fertilizersRepo.update(ids, {isDeleted: false });
+        return await this.fertilizersRepo.update(
+      { id: In(ids) },
+      { isDeleted: false },
+    );
   }
 
 
-   async findAllFertilizersIsDelete(): Promise<Fertilizer[]> {
-  return this.fertilizersRepo.find({
-    where: { isDeleted: true },   
-    order: { id: 'ASC' },
-  });
-}
-async findUpdatedFertilizersAfterIsDelete(date: Date): Promise<Fertilizer[]> {
-  return this.fertilizersRepo.find({
-    where: {
-      updatedAt: MoreThan(date),
-      isDeleted: false,
-    },
-    order: { id: 'ASC' },
-  });
-}
+  async findAllFertilizersIsDelete(): Promise<Fertilizer[]> {
+    return this.fertilizersRepo.find({
+      where: { isDeleted: true },
+      order: { id: 'ASC' },
+    });
+  }
+  async findUpdatedFertilizersAfterIsDelete(date: Date): Promise<Fertilizer[]> {
+    return this.fertilizersRepo.find({
+      where: {
+        updatedAt: MoreThan(date),
+        isDeleted: false,
+      },
+      order: { id: 'ASC' },
+    });
+  }
 
 }
 
