@@ -66,4 +66,34 @@ export class ItemsService {
       });
     return latest[0]?.updatedAt ?? new Date();
   }
+  // ids[] = [1,2,5]
+  async isDelete(ids: number[]): Promise<any> {
+    return await this.fertilizersRepo.update(ids, { isDeleted: true });
+  }
+  
+
+  // ids[] = [1,2,5]
+  async unDelete(ids: number[]): Promise<any> {
+    return await this.fertilizersRepo.update(ids, {isDeleted: false });
+  }
+
+
+   async findAllFertilizersIsDelete(): Promise<Fertilizer[]> {
+  return this.fertilizersRepo.find({
+    where: { isDeleted: true },   
+    order: { id: 'ASC' },
+  });
 }
+async findUpdatedFertilizersAfterIsDelete(date: Date): Promise<Fertilizer[]> {
+  return this.fertilizersRepo.find({
+    where: {
+      updatedAt: MoreThan(date),
+      isDeleted: false,
+    },
+    order: { id: 'ASC' },
+  });
+}
+
+}
+
+
