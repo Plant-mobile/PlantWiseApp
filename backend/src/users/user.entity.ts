@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn,  OneToOne, OneToMany } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, OneToOne, OneToMany } from "typeorm";
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { Fertilizer } from "../items/Fertilizers.entity"
 
 import { RefreshToken } from "./refresh_token.entity"; // عدّل المسار حسب مشروعك
+import { PasswordResetCode } from "./password-reset-code.entity";
 
 // src/users/user.entity.ts
 
@@ -11,15 +12,17 @@ export class User {
    @PrimaryGeneratedColumn()
    id: number;
    @Column({ type: "varchar", length: "150", nullable: false })
-   username: string;
+   userName: string;
    @Column({ type: "varchar", length: "250", unique: true })
    email: string;
    @Column()
    password: string;
    @Column({ type: "boolean", default: false })
    isAdmin: boolean;
-@OneToMany(() => RefreshToken, token => token.user)
-refreshToken: RefreshToken;
+   @OneToMany(() => RefreshToken, token => token.user)
+   refreshToken: RefreshToken;
+   @OneToMany(() => PasswordResetCode, code => code.user)
+   resetCodes: PasswordResetCode[];
    //  @Column({ type: 'varchar', nullable: true })
    //  recovery_token: string | null;
 

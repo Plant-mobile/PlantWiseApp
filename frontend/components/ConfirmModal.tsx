@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   text: {
-    fontWeight: "bold",
+    fontFamily: Colors.primaryFontBold,
   },
-
 });

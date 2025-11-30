@@ -19,7 +19,7 @@ import { User } from 'src/users/user.entity';
 import { AuthRolesGuard } from '../guards/auth-roles.guard';
 import { Roles } from '../users/decorators/user-role.decorator';
 
-@Controller('items')
+@Controller('api/items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) { }
 

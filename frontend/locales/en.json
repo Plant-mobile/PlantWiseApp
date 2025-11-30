@@ -39,6 +39,7 @@
     "sure": "Are you sure to {{Action}}?",
     "yes": "Yes",
     "no": "No",
+    "ok": "Ok",
     "": ""
   },
   "login": {
@@ -54,6 +55,22 @@
     "register-form": "Create your new account",
     "login-here": "Sing in",
     "have-account": "Already have an account?",
+    "password_not_match": "Password not match",
+    "missing_data": "Please enter all data",
+    "": ""
+  },
+  "forgetPassword": {
+    "forget_password": "Forget Password",
+    "create_new_password": "Create New Password",
+    "verify_email": "Verify Your Email",
+    "emailSituationText": "Please enter your email or username to search for your account",
+    "codeSituationText": "Please enter the code that sent to your email",
+    "passwordSituationText": "Please enter new password",
+    "send": "Send",
+    "resend_code": "Resend code",
+    "passwordChangeSuccessfully": "Your password was updated successfully",
+    "passwordChanged": "Password Changed",
+    "password_not_match": "Password not match",
     "": ""
   },
   "items": {
@@ -84,6 +101,29 @@
     "humidity": "Humidity:",
     "profit": "Profit:",
     "age": "Age:",
+    "": ""
+  },
+  "add": {
+    "new_fertilizer": "New Fertilizer Entry",
+    "fertilizers_essentials": "Fertilizers essentials:",
+    "fertilizers_type": "Fertilizers type",
+    "fertilizers_name": "Fertilizers name",
+    "chemical_formula": "Chemical Formula",
+    "approximate_proportions": "Approximate Proportions",
+    "solubility": "Solubility",
+    "symptoms_of_nitrogen_deficiency_and_treatment": "Symptoms of Nitrogen Deficiency and Treatment",
+    "indications": "Indications",
+    "application": "Application",
+    "add_fertilizer": "Add Fertilizer",
+    "new_plant": "New Plant Entry",
+    "add_plant": "Add Plant",
+    "media": "Media:",
+    "upload_image": "Upload Image",
+    "": ""
+  },
+  "errors": {
+    "server_error": "Server error, please try again later",
+    "LOGOUT_REQUIRED": "The session has ended, Pleace login again",
     "": ""
   }
 }

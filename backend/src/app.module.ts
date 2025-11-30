@@ -10,6 +10,7 @@ import { config } from 'node:process';
 import { Plant } from './items/Plant.entity';
 import { RefreshToken } from './users/refresh_token.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { PasswordResetCode } from './users/password-reset-code.entity';
 
 
 @Module({
@@ -39,7 +40,7 @@ import { JwtModule } from '@nestjs/jwt';
           database: 'postgres',
           ssl: { rejectUnauthorized: false },
           synchronize: process.env.NODE_ENV !== "production"
-          , entities: [User, Fertilizer, Plant, RefreshToken],
+          , entities: [User, Fertilizer, Plant, RefreshToken, PasswordResetCode],
           extra: {
             max: 200,
           },

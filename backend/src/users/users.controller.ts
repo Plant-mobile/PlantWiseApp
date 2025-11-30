@@ -58,15 +58,18 @@
 
 // }
 // auth.controller.ts
-import { Body, Controller, Get, Post, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Req, SetMetadata, UseGuards } from '@nestjs/common';
 import { UsersService } from "./users.service";
 import { RegisterDto } from "./dtos/register.dto";
 import { AuthRolesGuard } from '../guards/auth-roles.guard';
+import { ForgotPasswordDto } from './dtos/forgot-password.dto';
+import { VerifyCodeDto } from './dtos/verify-code.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @Controller("api/users")
 export class AuthController {
   constructor(private usersService: UsersService,
-    
+
   ) { }
 
 
@@ -80,14 +83,33 @@ export class AuthController {
     return this.usersService.login(body.email, body.password);
   }
 
-  @Post('auth/logout')
-  @UseGuards(AuthRolesGuard) 
-  // @SetMetadata('isAdmin', true)
- async logout(@Body() body: { refreshToken: string }) {
-     return this.usersService.logout(body.refreshToken);
+  @Post('auth/forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.usersService.forgotPassword(dto.email);
+    return { message: 'Code has been sent to your email' };
   }
 
-  @UseGuards(AuthRolesGuard) 
+  @Post('auth/verify-reset-code')
+  verifyResetCode(@Body() dto: VerifyCodeDto) {
+    return this.usersService.verifyResetCode(dto.email, dto.code);
+  }
+
+  @Post('auth/reset-password')
+  async resetPassword(
+  @Headers('authorization') authHeader: string,
+  @Body('newPassword') newPassword: string,
+) {
+  const token = authHeader?.split(' ')[1];
+  return this.usersService.resetPassword(token, newPassword);
+}
+
+  @Post('auth/logout')
+  // @SetMetadata('isAdmin', true)
+  async logout(@Body() body: { refreshToken: string }) {
+    return this.usersService.logout(body.refreshToken);
+  }
+
+  @UseGuards(AuthRolesGuard)
   @Post('auth/refresh')
   async refresh(@Body() body: { refreshToken: string }) {
     return this.usersService.refresh(body.refreshToken);

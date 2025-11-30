@@ -451,6 +451,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import ThemedText from "../../components/ThemedText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ConfirmModal from "../../components/ConfirmModal";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Loading from "../../components/loading";
 
 const { width, height } = Dimensions.get("window");
 
@@ -458,7 +460,7 @@ export default function Profile() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const router = useRouter();
-  const userCtx: any = useContext(UserContext); // عدّل النوع حسب TS setup عندك
+  const userCtx: any = useContext(UserContext);
   const { i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -540,6 +542,7 @@ export default function Profile() {
 
     if (!result.canceled && result.assets.length > 0) {
       setImage(result.assets[0].uri);
+      console.log(image);
       setImageChanged(true);
     }
   };
@@ -662,242 +665,256 @@ export default function Profile() {
   };
 
   const handleLogout = async () => {
-    // لو في method logout في الـ context
-    if (userCtx?.logout) userCtx.logout();
+    setLoading(true);
     router.replace("/login");
+    await userCtx.logout(userCtx.token, userCtx.refreshToken);
+    setLoading(false);
+    return;
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{ paddingBottom: 100 }}
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      style={{ flex: 1, backgroundColor: theme.primaryBackgroundColor }}
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundColor }]}
     >
-      <View
-        style={[
-          styles.header,
-          { backgroundColor: theme.primaryBackgroundColor },
-        ]}
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        style={{ flex: 1, backgroundColor: theme.primaryBackgroundColor }}
       >
-        <Text style={[{ fontSize: 28 }, styles.title]}>
-          {translation("g.edit_my_profile")}
-        </Text>
-        <Pressable onPress={handleLogout}>
-          <Image
-            source={require("../../assets/profile/logOut.png")}
-            style={[
-              styles.logOutImage,
-              {
-                backgroundColor: theme.logOutBackground,
-                borderColor: theme.logOutBackground,
-                tintColor: theme.logOutIcon,
-              },
-            ]}
-            resizeMode="cover"
-          />
-        </Pressable>
-      </View>
-
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.secondaryBackgroundColor },
-        ]}
-      >
-        <View style={styles.profileWrapper}>
-          <View style={styles.cricle}>
+        <View
+          style={[
+            styles.header,
+            { backgroundColor: theme.primaryBackgroundColor },
+          ]}
+        >
+          <Text style={[{ fontSize: 28 }, styles.title]}>
+            {translation("g.edit_my_profile")}
+          </Text>
+          <Pressable onPress={handleLogout}>
             <Image
-              source={
-                image
-                  ? { uri: image }
-                  : require("../../assets/profile/profilePhoto.png")
-              }
-              style={styles.image}
+              source={require("../../assets/profile/logOut.png")}
+              style={[
+                styles.logOutImage,
+                {
+                  backgroundColor: theme.logOutBackground,
+                  borderColor: theme.logOutBackground,
+                  tintColor: theme.logOutIcon,
+                },
+              ]}
               resizeMode="cover"
             />
-            <TouchableOpacity onPress={pickImage} style={styles.cameraButton}>
-              {colorScheme == "dark" ? (
-                <Image
-                  source={require("../../assets/profile/Icon-CamDark.png")}
-                />
-              ) : (
-                <Image source={require("../../assets/profile/Icon-Cam.png")} />
-              )}
-            </TouchableOpacity>
-          </View>
-
-          <ThemedText style={styles.username}>
-            {username || translation("g.user")}
-          </ThemedText>
+          </Pressable>
         </View>
 
-        <ThemedText style={styles.sectionTitle}>
-          {translation("g.account_settings")}
-        </ThemedText>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: theme.secondaryBackgroundColor },
+          ]}
+        >
+          <View style={styles.profileWrapper}>
+            <View style={styles.cricle}>
+              <Image
+                source={
+                  image
+                    ? { uri: image }
+                    : require("../../assets/profile/profilePhoto.png")
+                }
+                style={styles.image}
+                resizeMode="cover"
+              />
+              <TouchableOpacity onPress={pickImage} style={styles.cameraButton}>
+                {colorScheme == "dark" ? (
+                  <Image
+                    source={require("../../assets/profile/Icon-CamDark.png")}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../assets/profile/Icon-Cam.png")}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
 
-        <Spacer height={30} />
-
-        <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>
-            {translation("g.user-Name")}
-          </ThemedText>
-          <Spacer height={10} />
-          <TextInput
-            style={[
-              styles.input,
-              styles.boxShadow,
-              {
-                backgroundColor: theme.inputBackgroundColor,
-                color: theme.nameText,
-              },
-            ]}
-            value={username}
-            onChangeText={setUsername}
-            textAlign={isRTL ? "right" : "left"}
-            placeholder={translation("g.enter_name")}
-          />
-
-          <Spacer height={10} />
-          <ThemedText style={styles.label}>{translation("g.email")}</ThemedText>
-          <Spacer height={10} />
-          <TextInput
-            style={[
-              styles.input,
-              styles.boxShadow,
-              {
-                backgroundColor: theme.inputBackgroundColor,
-                color: theme.nameText,
-              },
-            ]}
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            textAlign={isRTL ? "right" : "left"}
-            placeholder={translation("g.enter_email")}
-          />
-
-          <Spacer height={10} />
-          <ThemedText style={styles.label}>
-            {translation("g.current_password")}
-          </ThemedText>
-          <Spacer height={10} />
-          <TextInput
-            style={[
-              styles.input,
-              styles.boxShadow,
-              {
-                backgroundColor: theme.inputBackgroundColor,
-                color: theme.nameText,
-              },
-            ]}
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            secureTextEntry
-            textAlign={isRTL ? "right" : "left"}
-          />
-
-          <Spacer height={10} />
-          <ThemedText style={styles.label}>
-            {translation("g.new_password")}
-          </ThemedText>
-          <Spacer height={10} />
-          <TextInput
-            style={[
-              styles.input,
-              styles.boxShadow,
-              {
-                backgroundColor: theme.inputBackgroundColor,
-                color: theme.nameText,
-              },
-            ]}
-            value={newPassword}
-            onChangeText={setNewPassword}
-            secureTextEntry
-            textAlign={isRTL ? "right" : "left"}
-          />
-
-          <Spacer height={10} />
-          <ThemedText style={styles.label}>
-            {translation("g.confirm_new_password")}
-          </ThemedText>
-          <Spacer height={10} />
-          <TextInput
-            style={[
-              styles.input,
-              styles.boxShadow,
-              {
-                backgroundColor: theme.inputBackgroundColor,
-                color: theme.nameText,
-              },
-            ]}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            textAlign={isRTL ? "right" : "left"}
-          />
-
-          <Spacer height={40} />
-
-          <View style={styles.toggleRow}>
-            <ThemedText style={styles.toggleLabel}>
-              {translation("g.dark_theme")}
+            <ThemedText style={styles.username}>
+              {username || translation("g.user")}
             </ThemedText>
-            <TouchableOpacity onPress={toggleHandler}>
-              <Animated.View style={[styles.toggle, { backgroundColor }]}>
-                <Animated.View
-                  style={[styles.circle, { transform: [{ translateX }] }]}
-                />
-              </Animated.View>
-            </TouchableOpacity>
           </View>
+
+          <ThemedText style={styles.sectionTitle}>
+            {translation("g.account_settings")}
+          </ThemedText>
 
           <Spacer height={30} />
 
-          <View style={styles.button}>
-            <LinearGradient
-              colors={[
-                theme.linearGradientColorOne,
-                theme.linearGradientColorTwo,
+          <View style={styles.inputContainer}>
+            <ThemedText style={styles.label}>
+              {translation("g.user-Name")}
+            </ThemedText>
+            <Spacer height={10} />
+            <TextInput
+              style={[
+                styles.input,
+                styles.boxShadow,
+                {
+                  backgroundColor: theme.inputBackgroundColor,
+                  color: theme.nameText,
+                },
               ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[styles.boxShadow, { borderRadius: 16 }]}
-            >
-              <TouchableOpacity
-                onPress={() => {
-                  setShowModal(true);
-                }}
-                disabled={saving}
-              >
-                <Text style={styles.btn}>
-                  {saving ? (
-                    <>{translation("g.saving") || "Saving..."} </>
-                  ) : (
-                    translation("g.update_profile")
-                  )}
-                </Text>
+              value={username}
+              onChangeText={setUsername}
+              textAlign={isRTL ? "right" : "left"}
+              placeholder={translation("g.enter_name")}
+            />
+
+            <Spacer height={10} />
+            <ThemedText style={styles.label}>
+              {translation("g.email")}
+            </ThemedText>
+            <Spacer height={10} />
+            <TextInput
+              style={[
+                styles.input,
+                styles.boxShadow,
+                {
+                  backgroundColor: theme.inputBackgroundColor,
+                  color: theme.nameText,
+                },
+              ]}
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              textAlign={isRTL ? "right" : "left"}
+              placeholder={translation("g.enter_email")}
+            />
+
+            <Spacer height={10} />
+            <ThemedText style={styles.label}>
+              {translation("g.current_password")}
+            </ThemedText>
+            <Spacer height={10} />
+            <TextInput
+              style={[
+                styles.input,
+                styles.boxShadow,
+                {
+                  backgroundColor: theme.inputBackgroundColor,
+                  color: theme.nameText,
+                },
+              ]}
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry
+              textAlign={isRTL ? "right" : "left"}
+            />
+
+            <Spacer height={10} />
+            <ThemedText style={styles.label}>
+              {translation("g.new_password")}
+            </ThemedText>
+            <Spacer height={10} />
+            <TextInput
+              style={[
+                styles.input,
+                styles.boxShadow,
+                {
+                  backgroundColor: theme.inputBackgroundColor,
+                  color: theme.nameText,
+                },
+              ]}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              textAlign={isRTL ? "right" : "left"}
+            />
+
+            <Spacer height={10} />
+            <ThemedText style={styles.label}>
+              {translation("g.confirm_new_password")}
+            </ThemedText>
+            <Spacer height={10} />
+            <TextInput
+              style={[
+                styles.input,
+                styles.boxShadow,
+                {
+                  backgroundColor: theme.inputBackgroundColor,
+                  color: theme.nameText,
+                },
+              ]}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              textAlign={isRTL ? "right" : "left"}
+            />
+
+            <Spacer height={40} />
+
+            <View style={styles.toggleRow}>
+              <ThemedText style={styles.toggleLabel}>
+                {translation("g.dark_theme")}
+              </ThemedText>
+              <TouchableOpacity onPress={toggleHandler}>
+                <Animated.View style={[styles.toggle, { backgroundColor }]}>
+                  <Animated.View
+                    style={[styles.circle, { transform: [{ translateX }] }]}
+                  />
+                </Animated.View>
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
+
+            <Spacer height={30} />
+
+            <View style={styles.button}>
+              <LinearGradient
+                colors={[
+                  theme.linearGradientColorOne,
+                  theme.linearGradientColorTwo,
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.boxShadow, { borderRadius: 16 }]}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowModal(true);
+                  }}
+                  disabled={saving}
+                >
+                  <Text style={styles.btn}>
+                    {saving ? (
+                      <>{translation("g.saving") || "Saving..."} </>
+                    ) : (
+                      translation("g.update_profile")
+                    )}
+                  </Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            </View>
+
+            <ConfirmModal
+              visible={showModal}
+              message={translation("g.sure", {
+                Action: "update your setting profile",
+              })}
+              onCancel={() => setShowModal(false)}
+              onConfirm={handleUpdateProfile}
+            />
+
+            {saving && <ActivityIndicator style={{ marginTop: 12 }} />}
           </View>
-
-          <ConfirmModal
-            visible={showModal}
-            message={translation("g.sure", {
-              Action: "update your setting profile",
-            })}
-            onCancel={() => setShowModal(false)}
-            onConfirm={handleUpdateProfile}
-          />
-
-          {saving && <ActivityIndicator style={{ marginTop: 12 }} />}
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <Loading text={"GreenSight"} visible={loading} />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   header: {
     justifyContent: "center",
     alignItems: "center",

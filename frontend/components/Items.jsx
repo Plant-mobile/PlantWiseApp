@@ -5,7 +5,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
   ScrollView,
   useColorScheme,
@@ -23,11 +22,6 @@ import ConfirmModal from "./ConfirmModal";
 import { UserContext } from "../services/auth/auth";
 
 const { width, height } = Dimensions.get("window");
-
-// const images = {
-//   en: require("../assets/arrow_en.png"),
-//   ar: require("../assets/arrow_en.png"),
-// };
 
 const images = {
   nitrogen: require("../assets/items/nitrogenFertilize.png"),
@@ -49,17 +43,28 @@ const Items = ({ data, catagory, type, title }) => {
   const theme = Colors[colorScheme] ?? Colors.light;
   const insets = useSafeAreaInsets();
   const [showModal, setShowModal] = useState(false);
-    const { user } = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const handleBack = () => {
     if (selectedItem) {
       setSelectedItem(null);
     } else if (selectedCategory) {
       setSelectedCategory(null);
+      setSelectedIds([]);
     } else {
       router.replace("/main");
       setSelectedCategory(null);
     }
+  };
+
+  const handlePress = (id) => {
+    setSelectedIds(
+      (prev) =>
+        prev.includes(id)
+          ? prev.filter((x) => x !== id) // إذا كان موجود وشلت الضغط → يشطب
+          : [...prev, id] // إذا مش موجود → ينضاف
+    );
   };
 
   if (selectedCategory) {
@@ -67,14 +72,7 @@ const Items = ({ data, catagory, type, title }) => {
       const subItem = data.find((item) => item.name === selectedItem);
 
       return (
-        <SafeAreaView
-          style={[
-            styles.container,
-            {
-              backgroundColor: theme.secondaryBackgroundColor,
-            },
-          ]}
-        >
+        <>
           <TouchableOpacity
             onPress={handleBack}
             style={{
@@ -390,36 +388,42 @@ const Items = ({ data, catagory, type, title }) => {
               </View>
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </>
       );
     }
 
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {
-            backgroundColor: theme.secondaryBackgroundColor,
-          },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={handleBack}
-          style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
-            alignSelf: "flex-start",
-          }}
-        >
-          <Text style={[styles.back]}>
+      <>
+        <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
+          <TouchableOpacity
+            onPress={handleBack}
+            style={{
+              // flexDirection: isRTL ? "row-reverse" : "row",
+              alignSelf: "flex-start",
+            }}
+          >
+            <Text style={[styles.back]}>
+              <Image
+                source={require("../assets/items/arrow_en.png")}
+                style={styles.image}
+              />
+              {type === "fertilizer"
+                ? translation("items.fertilizers")
+                : translation("items.plants")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={selectedIds.length === 0}
+            onPress={() => {
+              if (selectedIds.length) setShowModal(true);
+            }}
+          >
             <Image
-              source={require("../assets/items/arrow_en.png")}
-              style={styles.image}
+              source={require("../assets/items/deleteIcon.png")}
+              style={[styles.deleteIcon, selectedIds.length && styles.delete]}
             />
-            {type === "fertilizer"
-              ? translation("items.fertilizers")
-              : translation("items.plants")}
-          </Text>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
         <View
           style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
         ></View>
@@ -448,21 +452,30 @@ const Items = ({ data, catagory, type, title }) => {
               .map((item, index) => (
                 <View style={styles.dataContainer} key={index}>
                   <Image source={{ uri: item.img }} style={styles.mainImage} />
-                  {user.isAdmin && (
-                  <TouchableOpacity
-                    style={[styles.deleteContainer]}
-                    onPress={() => {
-                      setShowModal(true);
-                    }}
-                  >
-                    <Image
-                      source={require("../assets/items/deleteIcon.png")}
-                      style={[
-                        styles.deleteIcon,
-                        { tintColor: theme.deleteIcon },
-                      ]}
-                    />
-                  </TouchableOpacity>)}
+                  {user?.isAdmin && (
+                    <TouchableOpacity
+                      style={styles.deleteCornerWrapper}
+                      onPress={() => {
+                        handlePress(item.id);
+                      }}
+                    >
+                      <View
+                        style={[
+                          styles.deleteCornerSquare,
+                          selectedIds.includes(item.id) && { opacity: 1 },
+                        ]}
+                      >
+                        <Image
+                          source={require("../assets/items/deleteIcon.png")}
+                          style={[
+                            styles.deleteIconImage,
+                            selectedIds.includes(item.id) &&
+                              styles.selectedItem,
+                          ]}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  )}
                   <View style={styles.overlay}>
                     <Image
                       source={require("../assets/items/wave_1.png")}
@@ -497,27 +510,20 @@ const Items = ({ data, catagory, type, title }) => {
           <ConfirmModal
             visible={showModal}
             message={translation("g.sure", {
-              Action: "delete this item",
+              Action: "delete",
             })}
             onCancel={() => setShowModal(false)}
             onConfirm={() => {
               setShowModal(false);
-              console.log("a");
+              console.log(selectedIds);
             }}
           />
         </ScrollView>
-      </SafeAreaView>
+      </>
     );
   }
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.secondaryBackgroundColor,
-        },
-      ]}
-    >
+    <>
       <TouchableOpacity
         onPress={handleBack}
         style={{
@@ -526,10 +532,7 @@ const Items = ({ data, catagory, type, title }) => {
         }}
       >
         <Text style={[styles.back]}>
-          <Image
-            source={require("../assets/items/arrow_en.png")}
-            style={styles.image}
-          />
+          <Image source={require("../assets/items/arrow_en.png")} />
           {translation("g.home")}
         </Text>
       </TouchableOpacity>
@@ -554,21 +557,6 @@ const Items = ({ data, catagory, type, title }) => {
           {catagory.map((item, index) => (
             <View style={styles.dataContainer} key={index}>
               <Image source={images[item.img]} style={styles.mainImage} />
-                  {user.isAdmin && (
-                  <TouchableOpacity
-                    style={[styles.deleteContainer]}
-                    onPress={() => {
-                      setShowModal(true);
-                    }}
-                  >
-                    <Image
-                      source={require("../assets/items/deleteIcon.png")}
-                      style={[
-                        styles.deleteIcon,
-                        { tintColor: theme.deleteIcon },
-                      ]}
-                    />
-                  </TouchableOpacity>)}
               <View style={styles.overlay}>
                 <Image
                   source={require("../assets/items/wave_1.png")}
@@ -600,20 +588,8 @@ const Items = ({ data, catagory, type, title }) => {
             </View>
           ))}
         </View>
-
-        <ConfirmModal
-          visible={showModal}
-          message={translation("g.sure", {
-            Action: "delete this",
-          })}
-          onCancel={() => setShowModal(false)}
-          onConfirm={() => {
-            setShowModal(false);
-            console.log("a");
-          }}
-        />
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 };
 
@@ -738,13 +714,48 @@ const styles = StyleSheet.create({
     fontSize: width * 0.07,
     fontFamily: Colors.primaryFont,
   },
-  deleteContainer: {
+  deleteCornerWrapper: {
     position: "absolute",
-    top: 10,
-    right: 5,
+    top: 0,
+    right: 0,
+    width: 90,
+    height: 90,
+    overflow: "hidden",
+    borderTopRightRadius: 10,
+  },
+  deleteCornerSquare: {
+    backgroundColor: Colors.deleteIconBackgroundColor,
+    width: "100%",
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    transform: [{ rotate: "45deg" }],
+    position: "absolute",
+    top: -45,
+    right: -45,
+    opacity: 0.8,
   },
   deleteIcon: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
+    right: width * 0.05,
+    tintColor: Colors.primaryColor,
+    opacity: 0.5,
+  },
+  delete: {
+    tintColor: "red",
+    opacity: 1,
+  },
+  deleteIconImage: {
+    width: 20,
+    height: 20,
+    tintColor: "black",
+    transform: [{ rotate: "-45deg" }],
+    top: "70%",
+    left: "40%",
+    position: "absolute",
+  },
+  selectedItem: {
+    tintColor: Colors.deleteIconColor,
   },
 });

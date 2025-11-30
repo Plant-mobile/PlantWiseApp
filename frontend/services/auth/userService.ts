@@ -1,77 +1,88 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { translation } from '../translateService';
 
 
-const API_URL = 'http://192.168.1.121:5000/api/users/auth';
+const API_URL = 'http://192.168.1.87:5000/api/users/auth';
 
-/**
- * تسجيل الدخول - Login
- */
-export async function loginUser(email: string, password: string) {
-  const response = await fetch(`${API_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
+export async function fetchWithTimeout(url: string, options: any = {}, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-  const data = await response.json();
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
 
-   if (!response.ok) {
-    // مثال: 401 أو 400
+    clearTimeout(timeout);
+    return response;
+
+  } catch (error: any) {
+    clearTimeout(timeout);
+
+    throw new Error("NETWORK_ERROR");
+  }
+}
+
+export async function post(url: string, body: any, headers: any = {}) {
+  try {
+    const response = await fetchWithTimeout(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Something went wrong",
+      };
+    }
+
+    return { success: true, ...data };
+
+  } catch (err: any) {
+
     return {
       success: false,
-      message: data.message || "Something went wrong"
+      message: translation("errors.server_error")
     };
+
   }
-
-  // نجاح
-  return {
-    success: true,
-    ...data
-  };
-  // console.log(response.ok);
-  // console.log(data);
-  // if (!data.success) {
-  //   ToastMessages.error(data.message) 
-  //   return false; 
-  // }
-
-  // // خزن المستخدم محليًا
-  // await AsyncStorage.setItem('user', JSON.stringify(data.user));
-  // await AsyncStorage.setItem('token', data.accessToken);
-  // // setUser(fakeUser)
-  // ToastMessages.success('logged in');
-  // console.log('✅ logged in')
-  // return data;
 }
 
-/**
- * تسجيل مستخدم جديد - Register
- */
+
+export async function loginUser(email: string, password: string) {
+  return await post(`${API_URL}/login`, { email, password }, { 'Content-Type': 'application/json' });
+}
+
 export async function registerUser(email: string, password: string, userName: string) {
-  const response = await fetch(`${API_URL}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, userName }),
-  });
-
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.message || 'فشل إنشاء الحساب');
-
-  return data;
+  return await post(`${API_URL}/register`, { email, password, userName }, { 'Content-Type': 'application/json' });
 }
 
-/**
- * تسجيل الخروج - Logout
- */
-export async function logoutUser() {
-  await AsyncStorage.multiRemove([
-    'user',
-    'token',
-    'refreshToken',
-    'dot',
-    'fertilizers_cache',
-    'fertilizers_last_updated',
-    'plants_last_updated',
-    'plants_cache',
-  ]);
+export async function sendEmailUser(email: string) {
+  return await post(`${API_URL}/forgot-password`, { email }, { 'Content-Type': 'application/json' });
+}
+
+export async function verifyResetCodeUser(email: string, code: string) {
+  return await post(`${API_URL}/verify-reset-code`, { email, code }, { 'Content-Type': 'application/json' });
+}
+
+export async function resetPasswordUser(token: string, newPassword: string) {
+  return await post(`${API_URL}/reset-password`, { newPassword }, {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  });
+}
+
+export async function logoutUser(token: string, refreshToken: string) {
+  return await post(`${API_URL}/logout`, { refreshToken }, {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+    "x-refresh-token": refreshToken,
+  });
 }

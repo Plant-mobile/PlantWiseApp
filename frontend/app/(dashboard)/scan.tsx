@@ -35,6 +35,7 @@ const scan = () => {
         {paddingBottom: insets.bottom, backgroundColor: theme.secondaryBackgroundColor, },
       ]}
     >
+      
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}

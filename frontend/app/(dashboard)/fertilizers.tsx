@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { use, useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   useColorScheme,
+  Modal,
 } from "react-native";
 import Items from "../../components/Items";
 import { translation } from "../../services/translateService";
@@ -20,29 +21,24 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingProgressBar from "../../components/LoadingProgressBar";
 import { UserContext } from "../../services/auth/auth";
 import LoginScreen from "../(auth)/login";
+import Loading from "../../components/loading";
 const { width, height } = Dimensions.get("window");
 const FERTILIZERS_KEY = "fertilizers_cache";
 const UPDATED_KEY = "fertilizers_last_updated";
+import { getAllFertilizers } from "../../services/items/itemsService";
+import { BlurView } from "expo-blur";
+import ErrorModal from "../../components/errorModal";
 
 export default function ProductList() {
   const [fertilizers, setFertilizers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const insets = useSafeAreaInsets();
-  const { refreshToken, token, logout } = useContext(UserContext);
-
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let current = 0;
-    const interval = setInterval(() => {
-      current += 0.1;
-      setProgress(current);
-      if (current >= 1) clearInterval(interval);
-    }, 500);
-  }, []);
+  const { refreshToken, token, logout, user } = useContext(UserContext);
+  const [modelShow, setModelShow] = useState(false);
+  // const userCtx: any = useContext(UserContext);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -52,186 +48,193 @@ export default function ProductList() {
 
     const getData = async () => {
       try {
+        // جلب البيانات المخزنة مسبقًا
         const cached = await AsyncStorage.getItem(FERTILIZERS_KEY);
         const lastUpdated = await AsyncStorage.getItem(UPDATED_KEY);
-
         if (cached) {
           setFertilizers(JSON.parse(cached));
           setLoading(false);
         }
 
-        const res = await fetch(
-          `http://192.168.1.121:5000/items/fertilizers${
-            lastUpdated ? `?since=${lastUpdated}` : ""
-          }`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-              "x-refresh-token": refreshToken,
-            },
-            signal: controller.signal,
-          }
+        // جلب البيانات الجديدة من السيرفر
+        const data = await getAllFertilizers(
+          token,
+          refreshToken,
+          cached,
+          lastUpdated
         );
 
-        clearTimeout(timeout);
-
-        // ------------- حالة خطأ في الاستجابة من السيرفر -------------
-        if (!res.ok) {
-          let errorData = null;
-
-          try {
-            errorData = await res.json();
-          } catch (_) {}
-
-          // حالة LOGOUT_REQUIRED
-          if (errorData?.error === "LOGOUT_REQUIRED") {
-            await logout();
-            router.replace("/(auth)/login");
-            return;
-          }
-
-          // أي خطأ من السيرفر مثل 500 / 502
-          setError("SERVER_ERROR");
+        // حالة LOGOUT_REQUIRED
+        if (!data.success && data.error === "LOGOUT_REQUIRED") {
+          setModelShow(true);
+          setLoading(false);
           return;
         }
 
-        // ------------ تحديث التوكن ------------
-        const newAccessToken = res.headers.get("x-access-token");
-        if (newAccessToken) {
-          await AsyncStorage.setItem("token", newAccessToken);
+        // أي خطأ آخر
+        if (!data.success) {
+          setError(true);
+          return;
         }
 
-        const json = await res.json();
-        const current = JSON.parse(cached || "[]");
-
-        const newFertilizers = mergeFertilizers(current, json.fertilizers);
-
-        await AsyncStorage.setItem(
-          FERTILIZERS_KEY,
-          JSON.stringify(newFertilizers)
-        );
-        await AsyncStorage.setItem(UPDATED_KEY, json.last_updated);
-
-        setFertilizers(newFertilizers);
+        // تحديث الـ state والـ AsyncStorage
+        setFertilizers(data.fertilizers);
       } catch (err) {
         console.log("ERROR →", err);
 
-        // ----------- Timeout -----------
-        if (err.name === "AbortError") {
-          setError("TIMEOUT");
-          return;
-        }
+        // جلب البيانات المخزنة إذا موجودة
+        const cached = await AsyncStorage.getItem(FERTILIZERS_KEY);
+        if (cached) setFertilizers(JSON.parse(cached));
 
-        // ----------- Network/server down (No response) ----------
-        setError("SERVER_ERROR");
+        // التعامل مع timeout أو network error
+        setError(true);
       } finally {
         setLoading(false);
+        clearTimeout(timeout);
       }
     };
 
     getData();
-    const mergeFertilizers = (oldList, newList) => {
-      const map = new Map();
-      [...oldList, ...newList].forEach((item) => {
-        if (item.isDeleted) {
-          map.delete(item.id);
-        } else {
-          map.set(item.id, item);
-        }
-      });
-      return Array.from(map.values());
-    };
 
     return () => {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, []);
+  }, [token, refreshToken, user]);
 
   const handleBack = () => {
     router.replace("/main");
   };
-  console.log(error);
-  if (loading) {
-    return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.secondaryBackgroundColor },
-        ]}
-      >
-        <View style={{ width: "100%", marginLeft: width * 0.34 }}>
-          <Image
-            source={require("../../assets/items/loading/loading_man.png")}
+
+  const handleLogout = async () => {
+    setModelShow(false);
+    setLoading(true);
+    // router.replace("/login");
+    await logout(token, refreshToken);
+    setLoading(false);
+    return;
+  };
+
+  return (
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundColor }]}
+    >
+      {error && (
+        <>
+          <TouchableOpacity
+            onPress={handleBack}
+            style={{ alignSelf: "flex-start" }}
+          >
+            <Text style={[styles.back]}>
+              <Image source={require("../../assets/items/arrow_en.png")} />
+              {translation("g.home")}
+            </Text>
+          </TouchableOpacity>
+
+          <View
+            style={[
+              styles.line,
+              { backgroundColor: theme.lineBackgroundColor },
+            ]}
+          />
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {/* {error === "TIMEOUT" ? ( */}
+            {/* <Image source={require("../../assets/items/error/504.png")} /> */}
+            {/* ) : ( */}
+            <Image source={require("../../assets/items/error/502.png")} />
+            {/* )} */}
+          </View>
+        </>
+      )}
+      {!error && (
+        <View style={{ flex: 1 }}>
+          <Items
+            data={fertilizers}
+            catagory={[
+              { catagory: "nitrogen_fertilizers", img: "nitrogen" },
+              { catagory: "micrinurent_fertilizers", img: "micrinurent" },
+              { catagory: "potassium_fertilizers", img: "potassium" },
+              { catagory: "phoshate_fertilizers", img: "phoshate" },
+            ]}
+            type={"fertilizer"}
+            title={translation("items.fertilizers_type")}
           />
         </View>
-        <Text style={[styles.loadFont, { color: theme.primaryColor }]}>
-          {translation("g.loading")}
-        </Text>
-        <View style={{ width: "100%", height: 100 }}>
-          <LoadingProgressBar progress={progress} />
-        </View>
-        <Text style={[styles.loadDetails, { color: theme.primaryColor }]}>
-          {translation("g.wait")}
-        </Text>
-      </View>
-    );
-  }
-  if (error ) {
-    return (
-      <SafeAreaView
-        style={[
-          styles.safeArea,
-          {
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-            backgroundColor: theme.secondaryBackgroundColor,
-          },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={handleBack}
-          style={{ alignSelf: "flex-start" }}
-        >
-          <Text style={[styles.back]}>
-            <Image source={require("../../assets/items/arrow_en.png")} />
-            {translation("g.home")}
-          </Text>
-        </TouchableOpacity>
-
-        <View
-          style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
-        />
-
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          {error === "TIMEOUT" ? (
-            <Image source={require("../../assets/items/error/504.png")} />
-          ) : (
-            <Image source={require("../../assets/items/error/502.png")} />
-          )}
-        </View>
-      </SafeAreaView>
-    );
-  }
-  return (
-    <View style={{ flex: 1 }}>
-      <Items
-        data={fertilizers}
-        catagory={[
-          { catagory: "nitrogen_fertilizers", img: "nitrogen" },
-          { catagory: "micrinurent_fertilizers", img: "micrinurent" },
-          { catagory: "potassium_fertilizers", img: "potassium" },
-          { catagory: "phoshate_fertilizers", img: "phoshate" },
-        ]}
-        type={"fertilizer"}
-        title={translation("items.fertilizers_type")}
-      />
-    </View>
+      )}
+      <Loading text={"GreenSight"} visible={loading} />
+      <ErrorModal visible={modelShow} onConfirm={handleLogout} />
+    </SafeAreaView>
   );
+
+  // if (loading) {
+  //   return (
+  //     <SafeAreaView
+  //       style={[styles.safeArea, { backgroundColor: theme.backgroundColor }]}
+  //     >
+
+  //     </SafeAreaView>
+  //   );
+  // }
+  // if (error) {
+  //   return (
+  //     <SafeAreaView
+  //       style={[
+  //         styles.safeArea,
+  //         {
+  //           paddingTop: insets.top,
+  //           paddingBottom: insets.bottom,
+  //           backgroundColor: theme.secondaryBackgroundColor,
+  //         },
+  //       ]}
+  //     >
+  //       <TouchableOpacity
+  //         onPress={handleBack}
+  //         style={{ alignSelf: "flex-start" }}
+  //       >
+  //         <Text style={[styles.back]}>
+  //           <Image source={require("../../assets/items/arrow_en.png")} />
+  //           {translation("g.home")}
+  //         </Text>
+  //       </TouchableOpacity>
+
+  //       <View
+  //         style={[styles.line, { backgroundColor: theme.lineBackgroundColor }]}
+  //       />
+
+  //       <View
+  //         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+  //       >
+  //         {error === "TIMEOUT" ? (
+  //           <Image source={require("../../assets/items/error/504.png")} />
+  //         ) : (
+  //           <Image source={require("../../assets/items/error/502.png")} />
+  //         )}
+  //       </View>
+  //     </SafeAreaView>
+  //   );
+  // } else {
+  //   return (
+  //     <View style={{ flex: 1 }}>
+  //       <Items
+  //         data={fertilizers}
+  //         catagory={[
+  //           { catagory: "nitrogen_fertilizers", img: "nitrogen" },
+  //           { catagory: "micrinurent_fertilizers", img: "micrinurent" },
+  //           { catagory: "potassium_fertilizers", img: "potassium" },
+  //           { catagory: "phoshate_fertilizers", img: "phoshate" },
+  //         ]}
+  //         type={"fertilizer"}
+  //         title={translation("items.fertilizers_type")}
+  //       />
+  //     </View>
+  //   );
+  // }
 }
 
 const styles = StyleSheet.create({

@@ -12,5 +12,5 @@ export class RegisterDto{
    
     @IsString()
     @Length(2,150)
-    username:string;
+    userName:string;
 }

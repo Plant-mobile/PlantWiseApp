@@ -180,48 +180,47 @@
 //   // }
 // }
 // auth.service.ts
-import { BadRequestException, Delete, Injectable, NotFoundException, Res, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Res, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { RegisterDto } from "./dtos/register.dto";
-import { JWTPayloadType, AccessTokenType, LoginData, RegisterData } from "../utils/types";
+import { JWTPayloadType, LoginData, RegisterData } from "../utils/types";
 import crypto from "crypto";
-
-// import { Model } from 'mongoose';
 import { User } from './user.entity';
 import { RefreshToken } from './refresh_token.entity';
-// import { RefreshToken, RefreshTokenDocument } from './refresh-token.schema';
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { retry } from 'rxjs';
+import * as nodemailer from 'nodemailer';
+import { PasswordResetCode } from './password-reset-code.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @InjectRepository(RefreshToken) private readonly refreshTokenRpository: Repository<RefreshToken>,
+    @InjectRepository(PasswordResetCode) private readonly resetCodeRepository: Repository<PasswordResetCode>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
-   public async register(registerDto: RegisterDto): Promise<RegisterData> {
-      const { email, password, username } = registerDto;
-
-
-      const userFromDb = await this.usersRepository.findOne({ where: { email } });
-      if (userFromDb) throw new BadRequestException("User already exists");
-
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+  public async register(registerDto: RegisterDto): Promise<RegisterData> {
+    const { email, password, userName } = registerDto;
 
 
-      let newUser = this.usersRepository.create({
-        email,
-        username,
-        password: hashedPassword,
-      });
-      newUser = await this.usersRepository.save(newUser);
+    const userFromDb = await this.usersRepository.findOne({ where: { email } });
+    if (userFromDb) throw new BadRequestException("User already exists");
 
-      const refreshToken = this.generateRefreshToken();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+
+    let newUser = this.usersRepository.create({
+      email,
+      userName,
+      password: hashedPassword, 
+    });
+    newUser = await this.usersRepository.save(newUser);
+
+    const refreshToken = this.generateRefreshToken();
 
     const refreshToken_db = await this.refreshTokenRpository.create({
       token: refreshToken,
@@ -231,9 +230,9 @@ export class UsersService {
 
     await this.refreshTokenRpository.save(refreshToken_db);
 
-      const accessToken = await this.generateJWT({ id: newUser.id, email: newUser.email });
-      return { user: { id: newUser.id, email: newUser.email }, accessToken, refreshToken };
-    }
+    const accessToken = await this.generateJWT({ id: newUser.id, email: newUser.email });
+    return { user: { id: newUser.id, userName: newUser.userName, email: newUser.email, isAdmin: newUser.isAdmin }, accessToken, refreshToken };
+  }
 
   async login(email: string, password: string): Promise<LoginData> {
     const user = await this.usersRepository.findOne({ where: { email } });
@@ -247,7 +246,7 @@ export class UsersService {
     const refreshToken_db = await this.refreshTokenRpository.create({
       token: refreshToken,
       user: user,
-      expiresAt: new Date(Date.now() + 1 * 60 * 1000)
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     });
 
     await this.refreshTokenRpository.save(refreshToken_db);
@@ -259,57 +258,185 @@ export class UsersService {
   }
 
   async logout(refreshToken: string) {
-    await this.refreshTokenRpository.delete({ token: refreshToken } );
+    await this.refreshTokenRpository.delete({ token: refreshToken });
     return { message: 'Logged out successfully' };
   }
 
   async refresh(refreshToken: string) {
     const dbToken = await this.refreshTokenRpository.findOne({
-        where: { token: refreshToken },
-        relations: ['user']
+      where: { token: refreshToken },
+      relations: ['user']
     });
 
     if (!dbToken) {
-        throw new UnauthorizedException({
-            error: "INVALID_REFRESH_TOKEN",
-            message: "Invalid refresh token"
-        });
+      throw new UnauthorizedException({
+        error: "INVALID_REFRESH_TOKEN",
+        message: "Invalid refresh token"
+      });
     }
 
     if (dbToken.expiresAt < new Date()) {
 
-        await this.refreshTokenRpository.delete({ token: refreshToken });
+      await this.refreshTokenRpository.delete({ token: refreshToken });
 
-        throw new UnauthorizedException({
-            error: "REFRESH_TOKEN_EXPIRED",
-            message: "Refresh token expired, please login again"
-        });
+      throw new UnauthorizedException({
+        error: "REFRESH_TOKEN_EXPIRED",
+        message: "Refresh token expired, please login again"
+      });
     }
 
     const newAccessToken = this.jwtService.sign(
-        { id: dbToken.user.id, email: dbToken.user.email },
-        { expiresIn: "1m" }
+      { id: dbToken.user.id, email: dbToken.user.email },
+      { expiresIn: "15m" }
     );
 
     return {
-        accessToken: newAccessToken,
-        refreshToken: dbToken.token
+      accessToken: newAccessToken,
+      refreshToken: dbToken.token
     };
-}
+  }
 
-
-
-
-public async getCurrentUser(id: number): Promise<User> {
+  public async getCurrentUser(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) throw new NotFoundException("User not found");
     return user;
   }
-    private generateJWT(payload: JWTPayloadType): Promise<string> {
+
+  public async forgotPassword(email: string): Promise<boolean> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) throw new BadRequestException('Email not found');
+
+    const lastRequest = await this.resetCodeRepository.findOne({
+      where: { user: { id: user.id } },
+      order: { createdAt: 'DESC' }
+    });
+
+    const TWO_MINUTES = 2 * 60 * 1000; // 120,000 ms
+
+    if (lastRequest) {
+      const now = new Date();
+      const last = new Date(lastRequest.createdAt);
+      const diffMs = now.getTime() - last.getTime();
+
+      if (diffMs < TWO_MINUTES) {
+        const remainingMs = TWO_MINUTES - diffMs;
+        const remainingSec = Math.floor(remainingMs / 1000);
+        const minutes = Math.floor(remainingSec / 60);
+        const seconds = remainingSec % 60;
+
+        throw new BadRequestException(
+          `You can request a new code after ${minutes}:${seconds
+            .toString()
+            .padStart(2, '0')} minutes`,
+        );
+      }
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const createdAt = new Date(Date.now()); // now
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 mins
+    await this.resetCodeRepository.delete({ user: { id: user.id } });
+    await this.resetCodeRepository.save({
+      user,
+      code,
+      createdAt,
+      expiresAt,
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "anamstafa101@gmail.com",
+        pass: "wgoc xatp rlxu lyqj",
+      },
+    });
+
+    await transporter.sendMail({
+      from: '"PlantWise" <no-reply@plantwise.com>',
+      to: user.email,
+      subject: "Reset Your Password",
+      html: `
+        <p>Hello ${user.userName},</p>
+        <p>The code to reset your password is ${code}</p>
+      `,
+    });
+
+    return true
+  }
+
+  async verifyResetCode(email: string, code: string): Promise<{ resetToken: string }> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) throw new BadRequestException('Email not found');
+
+    const record = await this.resetCodeRepository.findOne({
+      where: { user: { id: user.id }, code },
+    });
+
+    if (!record) throw new BadRequestException('Invalid code');
+    if (record.expiresAt < new Date()) throw new BadRequestException('Code expired');
+
+    const resetToken = this.jwtService.sign(
+      { userId: user.id },
+      { expiresIn: '2m' } // صالح 2 دقائق
+    );
+
+    return { resetToken };
+  }
+
+ async resetPassword(resetToken: string, newPassword: string): Promise<boolean> {
+
+  let payload: any;
+  try {
+    payload = this.jwtService.verify(resetToken);
+  } catch (e) {
+    throw new BadRequestException('Invalid or expired token');
+  }
+
+  const user = await this.usersRepository.findOne({ where: { id: payload.userId } });
+  if (!user) throw new BadRequestException('User not found');
+
+  // Hash password
+  const hashed = await bcrypt.hash(newPassword, 10);
+  user.password = hashed;
+  await this.usersRepository.save(user);
+
+  // حذف أي كود باقٍ لهذا المستخدم
+  await this.resetCodeRepository.delete({ user: { id: user.id } });
+
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  private generateJWT(payload: JWTPayloadType): Promise<string> {
     return this.jwtService.signAsync(payload);
   }
 
-    private generateRefreshToken() {
-  return crypto.randomBytes(40).toString("hex");
-}
+  private generateRefreshToken() {
+    return crypto.randomBytes(40).toString("hex");
+  }
 }

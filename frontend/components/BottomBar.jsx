@@ -99,7 +99,7 @@ const BottomBar = () => {
           ]}
         />
       </Pressable>
-      {user.isAdmin && (
+      {user?.isAdmin && (
         <Pressable onPress={handleAddPress} style={styles.iconContainer}>
           {pathname === "/add" && <View style={styles.activeCircle} />}
           <Animated.Image

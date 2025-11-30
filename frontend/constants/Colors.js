@@ -4,12 +4,15 @@ export const Colors = {
   primaryFontBold: "PlayfairDisplay-Bold",
 
   tatalogOffBackgroundColor: "#B6E2BC",
+  deleteIconColor: "white",
+  deleteIconBackgroundColor: "#e74c3c",
 
   dark: {
     backgroundColor: "#1A2C21",
     primaryBackgroundColor: "#1A2C21",
     secondaryBackgroundColor: "#2C3E32",
     bordercricleColor: "#1CA739",
+    cricleBackgroundColor: "#1A2C21",
     inputBackgroundColor: "#1CA739",
     inputTextColor: "#DFF7E2",
     inputImgColor: "#DFF7E2",
@@ -31,7 +34,7 @@ export const Colors = {
     confirmButtonTextColor: "#F1FFF3",
     confirmOutLine: "#1CA739",
     confirmBorderColor: "transparent",
-    deleteIcon: "#1CA7391"
+    deleteIcon: "#1CA7391",
   },
   light: {
     backgroundColor: "#F1FFF3",
@@ -62,6 +65,6 @@ export const Colors = {
     confirmButtonTextColor: "#1CA739",
     confirmOutLine: "#1CA739",
     confirmBorderColor: "#1CA739",
-    deleteIcon: "#1CA7391"
+    deleteIcon: "#1CA7391",
   },
 };

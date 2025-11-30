@@ -18,6 +18,7 @@ import { translation } from "../../services/translateService";
 import { Colors } from "../../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ThemedView from "../../components/ThemedView";
+import Loading from "../../components/loading";
 
 const { width, height } = Dimensions.get("window");
 
@@ -32,22 +33,24 @@ export default function LoginScreen() {
   const theme = Colors[ColorScheme] ?? Colors.light;
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (userCtx && email && password) {
+      setLoading(true);
       const data = await userCtx.login(email, password);
 
       if (data) {
+        setLoading(false);
         router.replace("/(dashboard)/main");
       }
-      // تحقق إذا كان login ناجح
-      // if (data) {
-      //   router.replace("/(dashboard)/main"); // توجه للمين
-      // } else {
-      //   // عرض رسالة الخطأ من الباك باستخدام Toast
-      //   ToastMessages.error(data?.message || "فشل تسجيل الدخول");
-      // }
+      setLoading(false);
+      return;
     }
+  };
+
+  const handleForgetPassword = async () => {
+    router.replace("/forgetPassword");
   };
 
   const handleRegister = async () => {
@@ -87,7 +90,7 @@ export default function LoginScreen() {
                 textAlign={isRTL ? "right" : "left"}
               />
               <Image
-                source={require("../../assets/auth/loginCamera.png")}
+                source={require("../../assets/auth/email.png")}
                 style={[
                   styles.icon,
                   { height: 17, tintColor: theme.inputImgColor },
@@ -125,13 +128,12 @@ export default function LoginScreen() {
             </ThemedView>
 
             <ThemedView style={{ width: "100%", alignItems: "flex-end" }}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleForgetPassword}>
                 <Text style={styles.forgetPassword}>
                   {translation("login.forget-password")}
                 </Text>
               </TouchableOpacity>
             </ThemedView>
-
             <LinearGradient
               colors={[
                 theme.linearGradientColorOne,
@@ -141,9 +143,12 @@ export default function LoginScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.button}
             >
-              <Text onPress={handleLogin} style={styles.btnText}>
-                {translation("login.login")}
-              </Text>
+              <TouchableOpacity
+                onPress={handleLogin}
+                style={{ width: "100%", alignItems: "center" }}
+              >
+                <Text style={styles.btnText}>{translation("login.login")}</Text>
+              </TouchableOpacity>
             </LinearGradient>
 
             <ThemedView style={styles.orContainer}>
@@ -164,6 +169,7 @@ export default function LoginScreen() {
             </Text>
           </ThemedView>
         </ScrollView>
+        <Loading text={"GreenSight"} visible={loading} />
       </SafeAreaView>
     );
   }

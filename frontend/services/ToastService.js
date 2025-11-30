@@ -6,7 +6,7 @@ const toastTypes = {
   INFO: 'info',
 };
 
-export const showToast = (type, message, duration = 3000) => {
+export const showToast = (type, message, duration = 2000) => {
   Toast.show({
     type: type,          // success | error | info
     text1: message,  
