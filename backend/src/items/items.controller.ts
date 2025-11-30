@@ -8,7 +8,8 @@ import {
   Req,
   UseGuards,
   Get,
-  Query, // 👈 نضيف هذا
+  Query,
+  Patch, // 👈 نضيف هذا
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
@@ -21,7 +22,9 @@ import { Roles } from '../users/decorators/user-role.decorator';
 
 @Controller('api/items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) { }
+  constructor(private readonly itemsService: ItemsService,
+   
+  ) { }
 
   @Post('upload')
   @Roles(true)
@@ -90,4 +93,36 @@ export class ItemsController {
       last_updated: latest,
     };
   }
+   @Patch('is-delete')
+  async istDelete(
+    @Body('ids') ids: number[]   // تستقبل array من id
+  ) {
+    return this.itemsService.isDelete(ids);
+  }
+   @Patch('un-delete')
+  async unDelete(
+    @Body('ids') ids: number[]   // تستقبل array من id
+  ) {
+    return this.itemsService.unDelete(ids);
+  }
+
+
+  
+  @UseGuards(AuthRolesGuard) 
+  @Get('fertilizers')
+  async getFertilizersIsDelete(@Query('since') since?: string) {
+    const lastUpdated = since ? new Date(since) : null;
+
+
+    const fertilizers = lastUpdated
+      ? await this.itemsService.findUpdatedFertilizersAfterIsDelete(lastUpdated)
+      : await this.itemsService.findAllFertilizersIsDelete();
+
+    const latest = await this.itemsService.findLatestUpdateTime('fertilizers');
+    return {
+      fertilizers,
+      last_updated: latest,
+    };
+  }
 }
+
