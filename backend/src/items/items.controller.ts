@@ -134,7 +134,6 @@ export class ItemsController {
   }
 
   @UseGuards(AuthRolesGuard)
-  @SetMetadata('isAdmin', true)
   @Patch('save')
   async Save(
     @Body('ids') ids: number[],
@@ -147,7 +146,6 @@ export class ItemsController {
   }
 
   @UseGuards(AuthRolesGuard)
-  @SetMetadata('isAdmin', true)
   @Patch('unsave')
   async unSave(
     @Body('ids') ids: number[],
