@@ -21,15 +21,44 @@ export class ItemsService {
   ) { }
 
 
-  async addFertilizer(dto: AddFertilizersDto, admin: User) {
-    const fertilizer = this.fertilizersRepo.create({ ...dto });
-    return this.fertilizersRepo.save(fertilizer);
+  async addFertilizer(data: any, admin: User) {
+    const fertilizer = this.fertilizersRepo.create({
+      name: data.name,
+      catagory: data.catagory,
+      img: data.img,
+      chemical_formula: data.chemical_formula,
+      approximate_proportions: data.approximate_proportions,
+      solubility: data.solubility,
+      common_form: data.common_form,
+      indications: data.indications,
+      application: data.application,
+      symptoms: data.symptoms,
+      isSave: false,
+      isDeleted: false,
+    });
+
+    return await this.fertilizersRepo.save(fertilizer);
   }
 
-  async addPlant(dto: AddPlantsDto, admin: User) {
-    const plant = this.plantsRepo.create({ ...dto });
-    return this.plantsRepo.save(plant);
-  }
+
+async addPlant(data: any, admin: User) {
+  const plant = this.plantsRepo.create({
+    name: data.name,
+    age: data.age,
+    climate: data.climate,
+    substrate: data.substrate,
+    img: data.img,
+    temperatures: data.temperatures,
+    productionTime: data.productionTime,
+    humidity: data.humidity,
+    profit: data.profit,
+    catagory: data.catagory,
+    isSave: false,
+    isDeleted: false,
+  });
+
+  return await this.plantsRepo.save(plant);
+}
 
   async findAllFertilizers(): Promise<Fertilizer[]> {
     return this.fertilizersRepo.find({ order: { id: 'ASC' } });
@@ -75,7 +104,7 @@ export class ItemsService {
   }
 
   async unDelete(ids: number[]): Promise<any> {
-        return await this.fertilizersRepo.update(
+    return await this.fertilizersRepo.update(
       { id: In(ids) },
       { isDeleted: false },
     );

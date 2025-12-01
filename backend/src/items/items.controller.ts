@@ -27,40 +27,52 @@ export class ItemsController {
 
   ) { }
 
-  @Post('upload')
-  @Roles(true)
-  @UseGuards(AuthRolesGuard)
+  // @Roles(true)
+  // @UseGuards(AuthRolesGuard)
   @UseInterceptors(FileInterceptor('img', { storage: multer.memoryStorage() }))
+  @Post('upload')
   async uploadItem(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
     @Req() req,
   ) {
-    const { type } = body;
 
-    if (!type) throw new BadRequestException('type is required');
+    if (!file) throw new BadRequestException('الصورة مطلوبة');
+    if (!body.type) throw new BadRequestException('type is required');
+
+    const type = body.type.trim();
+    console.log(body);
+
 
     const folderPath = `./public/assets/${type}`;
     if (!fs.existsSync(folderPath)) {
-      throw new BadRequestException('مجلد التحميل غير موجود');
+      throw new BadRequestException(`مجلد ${type} غير موجود`);
     }
 
-    const fileName = `${Date.now()}-${file.originalname}`;
+
+    const fileExt = file.originalname.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `${folderPath}/${fileName}`;
+
+
     fs.writeFileSync(filePath, file.buffer);
 
     const imageUrl = `http://localhost:5000/assets/${type}/${fileName}`;
     const admin: User = req.user;
 
-    switch (type) {
-      case 'Fertilizers':
-        return this.itemsService.addFertilizer({ ...body, img: imageUrl }, admin);
-      case 'Plant':
-        return this.itemsService.addPlant({ ...body, img: imageUrl }, admin);
-      default:
-        throw new BadRequestException('نوع العنصر غير معروف');
+    const data = { ...body, img: imageUrl };
+
+    if (type === 'fertilizer') {
+      return this.itemsService.addFertilizer(data, admin);
     }
+
+    if (type === 'plant') {
+      return this.itemsService.addPlant(data, admin);
+    }
+
+    throw new BadRequestException('نوع العنصر غير معروف');
   }
+
 
   @UseGuards(AuthRolesGuard)
   @Get('plants')

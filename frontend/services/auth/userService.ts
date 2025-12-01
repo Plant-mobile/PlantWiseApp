@@ -1,7 +1,7 @@
 import { translation } from '../translateService';
 
 
-const API_URL = 'http://192.168.1.87:5000/api/users/auth';
+const API_URL = 'http://192.168.1.121:5000/api/users/auth';
 
 export async function fetchWithTimeout(url: string, options: any = {}, timeoutMs = 5000) {
   const controller = new AbortController();

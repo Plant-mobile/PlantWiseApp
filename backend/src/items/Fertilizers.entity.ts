@@ -15,7 +15,7 @@ img:string;
 chemical_formula:string;
 @Column()
 approximate_proportions:string;
-@Column()
+@Column({ nullable: true })
 solubility:string;
 @Column()
 common_form:string;

@@ -16,7 +16,7 @@ import {
 } from "react-native-safe-area-context";
 const { width, height } = Dimensions.get("window");
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Colors } from "../../constants/Colors";
 import { translation } from "../../services/translateService";
 import { router } from "expo-router";
@@ -24,8 +24,10 @@ import Spacer from "../../components/Spacer";
 import DropList from "../../components/dropList";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
+import { UserContext } from "../../services/auth/auth";
 
 const add = () => {
+  const { refreshToken, token, logout, user } = useContext(UserContext);
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -82,6 +84,37 @@ const add = () => {
 
   const handleBack = () => {
     router.replace("/main");
+  };
+
+  const handleUpload = async () => {
+const form = new FormData();
+
+form.append("type", "fertilizer");
+form.append("name", "name");
+form.append("catagory", "catagory");
+form.append("chemical_formula", "chemicalFormula");
+form.append("approximate_proportions", "approximate");
+form.append("solubility", solubility);
+form.append("common_form", "commonForm");
+form.append("indications", "indications");
+form.append("application", "application");
+form.append("symptoms", "symptoms");
+
+// form.append("img", {
+//   uri: image,
+//   type: "image/jpeg",
+//   name: "photo.jpg",
+// } as any);
+    const response = await fetch("http://10.100.12.229:5000/api/items/upload", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-refresh-token": refreshToken,
+      },
+      body: form,
+    });
+    console.log(response);
+    console.log(form);
   };
 
   const pickImage = async () => {
@@ -253,25 +286,27 @@ const add = () => {
                   onBlur={() => setIsApproximateProportionsFocused(false)}
                   // textAlign={isRTL ? "right" : "left"}
                 />
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.inputBackgroundColor,
-                      color: theme.inputTextColor,
-                    },
-                  ]}
-                  placeholder={
-                    isSolubilityFocused ? "" : translation("add.solubility")
-                  }
-                  placeholderTextColor={theme.inputTextColor}
-                  value={solubility}
-                  onChangeText={setSolubility}
-                  multiline={true}
-                  onFocus={() => setIsSolubilityFocused(true)}
-                  onBlur={() => setIsSolubilityFocused(false)}
-                  // textAlign={isRTL ? "right" : "left"}
-                />
+                {fertilizerCatagoryValue != "micrinurent_fertilizers" && (
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.inputBackgroundColor,
+                        color: theme.inputTextColor,
+                      },
+                    ]}
+                    placeholder={
+                      isSolubilityFocused ? "" : translation("add.solubility")
+                    }
+                    placeholderTextColor={theme.inputTextColor}
+                    value={solubility}
+                    onChangeText={setSolubility}
+                    multiline={true}
+                    onFocus={() => setIsSolubilityFocused(true)}
+                    onBlur={() => setIsSolubilityFocused(false)}
+                    // textAlign={isRTL ? "right" : "left"}
+                  />
+                )}
                 <TextInput
                   style={[
                     styles.input,
@@ -578,7 +613,7 @@ const add = () => {
             style={styles.button}
           >
             <TouchableOpacity
-              onPress={pickImage}
+              onPress={handleUpload}
               style={{ width: "100%", alignItems: "center" }}
             >
               <Text style={styles.btnText}>

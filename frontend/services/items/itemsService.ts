@@ -5,7 +5,7 @@ const FERTILIZERS_KEY = "fertilizers_cache";
 const UPDATED_KEY = "fertilizers_last_updated";
 
 
-const API_URL = 'http://192.168.1.87:5000/api/items';
+const API_URL = 'http://192.168.1.121:5000/api/items';
 
 export async function fetchWithTimeout(url: string, options: any = {}, timeoutMs = 5000) {
   const controller = new AbortController();
