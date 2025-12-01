@@ -15,9 +15,6 @@ export class ItemsService {
 
     @InjectRepository(Plant)
     private readonly plantsRepo: Repository<Plant>,
-
-    @InjectRepository(User)
-    private readonly usersRepo: Repository<User>,
   ) { }
 
 
@@ -41,24 +38,24 @@ export class ItemsService {
   }
 
 
-async addPlant(data: any, admin: User) {
-  const plant = this.plantsRepo.create({
-    name: data.name,
-    age: data.age,
-    climate: data.climate,
-    substrate: data.substrate,
-    img: data.img,
-    temperatures: data.temperatures,
-    productionTime: data.productionTime,
-    humidity: data.humidity,
-    profit: data.profit,
-    catagory: data.catagory,
-    isSave: false,
-    isDeleted: false,
-  });
+  async addPlant(data: any, admin: User) {
+    const plant = this.plantsRepo.create({
+      name: data.name,
+      age: data.age,
+      climate: data.climate,
+      substrate: data.substrate,
+      img: data.img,
+      temperatures: data.temperatures,
+      productionTime: data.productionTime,
+      humidity: data.humidity,
+      profit: data.profit,
+      catagory: data.catagory,
+      isSave: false,
+      isDeleted: false,
+    });
 
-  return await this.plantsRepo.save(plant);
-}
+    return await this.plantsRepo.save(plant);
+  }
 
   async findAllFertilizers(): Promise<Fertilizer[]> {
     return this.fertilizersRepo.find({ order: { id: 'ASC' } });
@@ -79,7 +76,6 @@ async addPlant(data: any, admin: User) {
       where: [{ updatedAt: MoreThan(date) },
       { isDeleted: true },
       ],
-
     });
   }
 
@@ -96,37 +92,97 @@ async addPlant(data: any, admin: User) {
     return latest[0]?.updatedAt ?? new Date();
   }
 
-  async isDelete(ids: number[]): Promise<any> {
-    return await this.fertilizersRepo.update(
+  async Delete(
+    ids: number[],
+    type: 'fertilizer' | 'plant'
+  ): Promise<any> {
+    let repo;
+
+    if (type === 'fertilizer') {
+      repo = this.fertilizersRepo;
+    } else if (type === 'plant') {
+      repo = this.plantsRepo;
+    }
+
+    return await repo.update(
       { id: In(ids) },
       { isDeleted: true },
     );
   }
+  async unDelete(
+    ids: number[],
+    type: 'fertilizer' | 'plant'
+  ): Promise<any> {
+    let repo;
 
-  async unDelete(ids: number[]): Promise<any> {
-    return await this.fertilizersRepo.update(
+    if (type === 'fertilizer') {
+      repo = this.fertilizersRepo;
+    } else if (type === 'plant') {
+      repo = this.plantsRepo;
+    }
+
+    return await repo.update(
       { id: In(ids) },
       { isDeleted: false },
     );
   }
+  async Save(
+    ids: number[],
+    type: 'fertilizer' | 'plant'
+  ): Promise<any> {
+    let repo;
 
+    if (type === 'fertilizer') {
+      repo = this.fertilizersRepo;
+    } else if (type === 'plant') {
+      repo = this.plantsRepo;
+    }
 
-  async findAllFertilizersIsDelete(): Promise<Fertilizer[]> {
-    return this.fertilizersRepo.find({
+    return await repo.update(
+      { id: In(ids) },
+      { isSave: true },
+    );
+  }
+  async unSave(
+    ids: number[],
+    type: 'fertilizer' | 'plant'
+  ): Promise<any> {
+    let repo;
+
+    if (type === 'fertilizer') {
+      repo = this.fertilizersRepo;
+    } else if (type === 'plant') {
+      repo = this.plantsRepo;
+    }
+
+    return await repo.update(
+      { id: In(ids) },
+      { isSave: false },
+    );
+  }
+
+  async findAllDelete(type: String) {
+    if (type === 'fertilizers')
+      return this.fertilizersRepo.find({
+        where: { isDeleted: true },
+      });
+    return this.plantsRepo.find({
       where: { isDeleted: true },
-      order: { id: 'ASC' },
     });
   }
-  async findUpdatedFertilizersAfterIsDelete(date: Date): Promise<Fertilizer[]> {
-    return this.fertilizersRepo.find({
-      where: {
-        updatedAt: MoreThan(date),
-        isDeleted: false,
-      },
-      order: { id: 'ASC' },
+  async findUpdatedAfterDelete(date: Date, type: String) {
+    if (type === 'fertilizers')
+      return this.fertilizersRepo.find({
+        where: [{ updatedAt: MoreThan(date) },
+        { isDeleted: false },
+        ],
+      });
+    return this.plantsRepo.find({
+      where: [{ updatedAt: MoreThan(date) },
+      { isDeleted: false },
+      ],
     });
   }
-
 }
 
 

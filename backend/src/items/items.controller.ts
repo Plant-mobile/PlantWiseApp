@@ -111,10 +111,11 @@ export class ItemsController {
   @SetMetadata('isAdmin', true)
   @Patch('delete')
   async istDelete(
-    @Body('ids') ids: number[]
+    @Body('ids') ids: number[],
+    @Body('type') type: 'fertilizer' | 'plant'
   ) {
     if (ids) {
-      return this.itemsService.isDelete(ids);
+      return this.itemsService.Delete(ids, type);
     }
     return false;
   }
@@ -123,10 +124,37 @@ export class ItemsController {
   @SetMetadata('isAdmin', true)
   @Patch('unDelete')
   async unDelete(
-    @Body('ids') ids: number[]
+    @Body('ids') ids: number[],
+    @Body('type') type: 'fertilizer' | 'plant'
   ) {
     if (ids) {
-      return this.itemsService.unDelete(ids);
+      return this.itemsService.unDelete(ids, type);
+    }
+    return false;
+  }
+
+  @UseGuards(AuthRolesGuard)
+  @SetMetadata('isAdmin', true)
+  @Patch('save')
+  async Save(
+    @Body('ids') ids: number[],
+    @Body('type') type: 'fertilizer' | 'plant'
+  ) {
+    if (ids && type) {
+      return this.itemsService.Save(ids, type);
+    }
+    return false;
+  }
+
+  @UseGuards(AuthRolesGuard)
+  @SetMetadata('isAdmin', true)
+  @Patch('unsave')
+  async unSave(
+    @Body('ids') ids: number[],
+    @Body('type') type: 'fertilizer' | 'plant'
+  ) {
+    if (ids && type) {
+      return this.itemsService.unSave(ids, type);
     }
     return false;
   }
@@ -134,16 +162,33 @@ export class ItemsController {
 
 
   @UseGuards(AuthRolesGuard)
-  @Get('fertilizers')
-  async getFertilizersIsDelete(@Query('since') since?: string) {
+  @SetMetadata('isAdmin', true)
+  @Get('deletedFertilizers')
+  async getFertilizersDelete(@Query('since') since?: string) {
     const lastUpdated = since ? new Date(since) : null;
 
-
     const fertilizers = lastUpdated
-      ? await this.itemsService.findUpdatedFertilizersAfterIsDelete(lastUpdated)
-      : await this.itemsService.findAllFertilizersIsDelete();
+      ? await this.itemsService.findUpdatedAfterDelete(lastUpdated, 'fertilizers')
+      : await this.itemsService.findAllDelete('fertilizers');
 
     const latest = await this.itemsService.findLatestUpdateTime('fertilizers');
+    return {
+      fertilizers,
+      last_updated: latest,
+    };
+  }
+
+  @UseGuards(AuthRolesGuard)
+  @SetMetadata('isAdmin', true)
+  @Get('deletedPlants')
+  async getPlantsDelete(@Query('since') since?: string) {
+    const lastUpdated = since ? new Date(since) : null;
+
+    const fertilizers = lastUpdated
+      ? await this.itemsService.findUpdatedAfterDelete(lastUpdated, 'plants')
+      : await this.itemsService.findAllDelete('plants');
+
+    const latest = await this.itemsService.findLatestUpdateTime('plants');
     return {
       fertilizers,
       last_updated: latest,
