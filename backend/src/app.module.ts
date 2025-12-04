@@ -11,6 +11,7 @@ import { Plant } from './items/Plant.entity';
 import { RefreshToken } from './users/refresh_token.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { PasswordResetCode } from './users/password-reset-code.entity';
+import {SaveItem} from "./items/SaveItems.entity"
 
 
 @Module({
@@ -40,7 +41,7 @@ import { PasswordResetCode } from './users/password-reset-code.entity';
           database: 'postgres',
           ssl: { rejectUnauthorized: false },
           synchronize: process.env.NODE_ENV !== "production"
-          , entities: [User, Fertilizer, Plant, RefreshToken, PasswordResetCode],
+          , entities: [User, Fertilizer, Plant, RefreshToken, PasswordResetCode,SaveItem],
           extra: {
             max: 200,
           },

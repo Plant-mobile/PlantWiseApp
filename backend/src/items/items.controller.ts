@@ -10,7 +10,8 @@ import {
   Get,
   Query,
   Patch,
-  SetMetadata, // 👈 نضيف هذا
+  SetMetadata,
+  Delete, // 👈 نضيف هذا
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
@@ -20,7 +21,9 @@ import { ItemsService } from './items.service';
 import { User } from 'src/users/user.entity';
 import { AuthRolesGuard } from '../guards/auth-roles.guard';
 import { Roles } from '../users/decorators/user-role.decorator';
-
+import {CURRENT_USER_KEY} from "../utils/constants"
+import { SaveItem, ItemType } from './SaveItems.entity';
+import { SaveItemDto } from './dtos/SaveItem.dto';
 @Controller('api/items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService,
@@ -134,28 +137,20 @@ export class ItemsController {
   }
 
   @UseGuards(AuthRolesGuard)
-  @Patch('save')
+  @Post('save')
   async Save(
-    @Body('ids') ids: number[],
-    @Body('type') type: 'fertilizer' | 'plant'
+    @Req() req, @Body() dto: SaveItemDto
   ) {
-    if (ids && type) {
-      return this.itemsService.Save(ids, type);
-    }
-    return false;
+    const user = req[CURRENT_USER_KEY]; 
+    return this.itemsService.save(user, dto.itemId, dto.itemType);
   }
 
   @UseGuards(AuthRolesGuard)
-  @Patch('unsave')
-  async unSave(
-    @Body('ids') ids: number[],
-    @Body('type') type: 'fertilizer' | 'plant'
-  ) {
-    if (ids && type) {
-      return this.itemsService.unSave(ids, type);
-    }
-    return false;
-  }
+  @Delete('unsave')
+async unSave(@Req() req, @Body() dto: SaveItemDto): Promise<boolean> {
+  const user = req[CURRENT_USER_KEY];
+  return this.itemsService.unSave(user, dto.itemId, dto.itemType);
+}
 
 
 
@@ -192,5 +187,11 @@ export class ItemsController {
       last_updated: latest,
     };
   }
+  @UseGuards(AuthRolesGuard)
+@Get('my-items')
+async getMySavedItems(@Req() req) {
+  const user = req[CURRENT_USER_KEY]; 
+  return this.itemsService.getUserSavedItemsByUser(user.id);
+}
 }
 

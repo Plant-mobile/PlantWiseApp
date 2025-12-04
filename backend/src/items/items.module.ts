@@ -9,10 +9,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Plant } from './Plant.entity';
+import { SaveItem } from './SaveItems.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Fertilizer, User, Plant]),
+    TypeOrmModule.forFeature([Fertilizer, User, Plant,SaveItem]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -22,6 +23,7 @@ import { Plant } from './Plant.entity';
       }),
     }),
     UsersModule,
+    ItemsModule,
   ],
   controllers: [ItemsController],
   providers: [ItemsService],

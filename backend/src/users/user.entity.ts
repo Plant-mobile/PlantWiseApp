@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, OneToOne, OneToMany } from "typeorm";
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { Fertilizer } from "../items/Fertilizers.entity"
-
+import { SaveItem } from "src/items/SaveItems.entity";
 import { RefreshToken } from "./refresh_token.entity"; // عدّل المسار حسب مشروعك
 import { PasswordResetCode } from "./password-reset-code.entity";
 
@@ -23,6 +23,10 @@ export class User {
    refreshToken: RefreshToken;
    @OneToMany(() => PasswordResetCode, code => code.user)
    resetCodes: PasswordResetCode[];
+   @OneToMany(() => SaveItem, saveItem => saveItem.user)
+saveItems: SaveItem[];
+
+
    //  @Column({ type: 'varchar', nullable: true })
    //  recovery_token: string | null;
 

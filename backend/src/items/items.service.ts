@@ -6,6 +6,7 @@ import { Plant } from "./Plant.entity";
 import { User } from 'src/users/user.entity';
 import { AddFertilizersDto } from './dtos/add-Fertilizers.dto';
 import { AddPlantsDto } from "./dtos/add-Plants.dto";
+import { SaveItem, ItemType } from './SaveItems.entity';
 
 @Injectable()
 export class ItemsService {
@@ -15,6 +16,8 @@ export class ItemsService {
 
     @InjectRepository(Plant)
     private readonly plantsRepo: Repository<Plant>,
+    @InjectRepository(SaveItem)
+    private readonly saveItemRepo: Repository<SaveItem>,
   ) { }
 
 
@@ -30,7 +33,7 @@ export class ItemsService {
       indications: data.indications,
       application: data.application,
       symptoms: data.symptoms,
-      isSave: false,
+      
       isDeleted: false,
     });
 
@@ -50,7 +53,7 @@ export class ItemsService {
       humidity: data.humidity,
       profit: data.profit,
       catagory: data.catagory,
-      isSave: false,
+      
       isDeleted: false,
     });
 
@@ -126,39 +129,25 @@ export class ItemsService {
       { isDeleted: false },
     );
   }
-  async Save(
-    ids: number[],
-    type: 'fertilizer' | 'plant'
-  ): Promise<any> {
-    let repo;
+  async save(user: User, itemId: number, itemType: ItemType): Promise<SaveItem> {
+    
 
-    if (type === 'fertilizer') {
-      repo = this.fertilizersRepo;
-    } else if (type === 'plant') {
-      repo = this.plantsRepo;
-    }
+    const saveItem = this.saveItemRepo.create({
+      user,
+      item_id: itemId,
+      item_type: itemType,
+    });
 
-    return await repo.update(
-      { id: In(ids) },
-      { isSave: true },
-    );
+    return await this.saveItemRepo.save(saveItem);
   }
-  async unSave(
-    ids: number[],
-    type: 'fertilizer' | 'plant'
-  ): Promise<any> {
-    let repo;
+ async unSave(user: User, itemId: number, itemType: ItemType): Promise<boolean> {
+    const deleteResult = await this.saveItemRepo.delete({
+      user: { id: user.id },
+      item_id: itemId,
+      item_type: itemType,
+    });
 
-    if (type === 'fertilizer') {
-      repo = this.fertilizersRepo;
-    } else if (type === 'plant') {
-      repo = this.plantsRepo;
-    }
-
-    return await repo.update(
-      { id: In(ids) },
-      { isSave: false },
-    );
+    return (deleteResult.affected ?? 0) > 0;
   }
 
   async findAllDelete(type: String) {
@@ -183,6 +172,19 @@ export class ItemsService {
       ],
     });
   }
-}
+   async getUserSavedItemsByUser(userId: number) {
+    return await this.saveItemRepo.query(
+      `
+      SELECT *
+      FROM save_item si
+      LEFT JOIN plants p ON (si.item_id = p.id AND si.item_type = 'plant')
+      LEFT JOIN fertilizers f ON (si.item_id = f.id AND si.item_type = 'fertilizer')
+      WHERE si.user_id = $1
+      `,
+      [userId],
+    );
+  }
+  }
+
 
 
